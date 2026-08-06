@@ -7,14 +7,11 @@ interface Props {
   streaming?: boolean
 }
 
-export function isJsonResponse(content: string, streaming = false): boolean {
+export function isLargeJsonResponse(content: string): boolean {
   const value = content.trimStart()
+  const isJson = value.startsWith('{') || value.startsWith('[')
 
-  if (value.startsWith('{') || value.startsWith('[')) return true
-  if (/^```json(?:\s|$)/i.test(value)) return true
-
-  // Во время стрима распознаём маркер ещё до появления первой строки JSON.
-  return streaming && /^```(?:j(?:s(?:o(?:n)?)?)?)?$/i.test(value)
+  return isJson && extractJson(content).split(/\r?\n/).length > 50
 }
 
 export default function JsonFileCard({ content, streaming = false }: Props) {
