@@ -1,6 +1,9 @@
 import { useState } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 import type { Attachment, Usage } from '../api/types'
+import JsonFileCard, { isJsonResponse } from './JsonFileCard'
 
 interface Props {
   role: 'user' | 'assistant' | 'system'
@@ -22,6 +25,7 @@ export default function MessageItem({
   streaming,
 }: Props) {
   const isUser = role === 'user'
+  const jsonResponse = !isUser && isJsonResponse(content, streaming)
 
   return (
     <div className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}>
@@ -41,8 +45,12 @@ export default function MessageItem({
               : 'border border-surface-700 bg-white text-slate-100 shadow-sm'
           }`}
         >
-          {content ? (
-            <div className="chat-markdown">{content}</div>
+          {jsonResponse ? (
+            <JsonFileCard content={content} streaming={streaming} />
+          ) : content ? (
+            <div className={`chat-markdown ${isUser ? 'chat-markdown-user' : ''}`}>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+            </div>
           ) : streaming ? (
             <TypingDots />
           ) : (

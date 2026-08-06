@@ -8,6 +8,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true,
+    allowedHosts: ['aheron.pro'],
     port,
     proxy: {
       '/api': {

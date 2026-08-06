@@ -69,10 +69,114 @@
   }
 
   .chat-markdown {
-    @apply whitespace-pre-wrap break-words text-[15px] leading-relaxed;
+    @apply break-words text-[15px] leading-relaxed;
+  }
+
+  .chat-markdown > :first-child {
+    @apply mt-0;
+  }
+
+  .chat-markdown > :last-child {
+    @apply mb-0;
+  }
+
+  .chat-markdown p {
+    @apply my-3;
+  }
+
+  .chat-markdown h1 {
+    @apply mb-3 mt-5 text-xl font-semibold leading-tight;
+  }
+
+  .chat-markdown h2 {
+    @apply mb-2.5 mt-5 text-lg font-semibold leading-tight;
+  }
+
+  .chat-markdown h3 {
+    @apply mb-2 mt-4 text-base font-semibold leading-snug;
+  }
+
+  .chat-markdown h4,
+  .chat-markdown h5,
+  .chat-markdown h6 {
+    @apply mb-2 mt-4 text-[15px] font-semibold;
+  }
+
+  .chat-markdown strong {
+    @apply font-semibold;
+  }
+
+  .chat-markdown ul {
+    @apply my-3 list-disc space-y-1 pl-6;
+  }
+
+  .chat-markdown ol {
+    @apply my-3 list-decimal space-y-1 pl-6;
+  }
+
+  .chat-markdown li > ul,
+  .chat-markdown li > ol {
+    @apply my-1;
+  }
+
+  .chat-markdown blockquote {
+    @apply my-3 border-l-4 border-blue-200 bg-blue-50 py-2 pl-3 pr-2 text-slate-400;
+  }
+
+  .chat-markdown a {
+    @apply font-medium underline decoration-current underline-offset-2;
   }
 
   .chat-markdown code {
     @apply rounded bg-blue-50 px-1.5 py-0.5 font-mono text-[13px] text-accent-600;
+  }
+
+  .chat-markdown pre {
+    @apply my-3 overflow-x-auto rounded-lg border border-surface-700 bg-surface-950 p-3;
+  }
+
+  .chat-markdown pre code {
+    @apply bg-transparent p-0 text-[13px] leading-6 text-slate-200;
+  }
+
+  .chat-markdown hr {
+    @apply my-5 border-0 border-t border-surface-600;
+  }
+
+  .chat-markdown table {
+    @apply my-3 w-full border-collapse text-sm;
+  }
+
+  .chat-markdown th {
+    @apply border border-surface-600 bg-surface-800 px-3 py-2 text-left font-semibold;
+  }
+
+  .chat-markdown td {
+    @apply border border-surface-600 px-3 py-2 align-top;
+  }
+
+  .chat-markdown-user code {
+    @apply bg-white/15 text-white;
+  }
+
+  .chat-markdown-user pre {
+    @apply border-white/20 bg-white/10;
+  }
+
+  .chat-markdown-user pre code {
+    @apply bg-transparent text-white;
+  }
+
+  .chat-markdown-user blockquote {
+    @apply border-white/50 bg-white/10 text-white;
+  }
+
+  .chat-markdown-user th,
+  .chat-markdown-user td {
+    @apply border-white/25;
+  }
+
+  .chat-markdown-user th {
+    @apply bg-white/10;
   }
 }
