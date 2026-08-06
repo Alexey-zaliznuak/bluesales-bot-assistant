@@ -75,10 +75,14 @@ export default function ChatsPage() {
     const controller = new AbortController()
     abortRef.current = controller
 
-    setPendingUser({
-      content: text,
-      attachments: files.map((file) => ({ filename: file.name, size: file.size })),
-    })
+    const pendingAttachments = await Promise.all(
+      files.map(async (file) => ({
+        filename: file.name,
+        size: file.size,
+        content: file.name.toLowerCase().endsWith('.json') ? await file.text() : undefined,
+      })),
+    )
+    setPendingUser({ content: text, attachments: pendingAttachments })
     setStreamContent('')
     setStreamReasoning('')
     setStreamUsage(null)

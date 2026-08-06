@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { FileText } from '@gravity-ui/icons'
+import { Icon } from '@gravity-ui/uikit'
 
 import type { Attachment, Usage } from '../api/types'
 import ChatMarkdown from './ChatMarkdown'
@@ -55,13 +57,9 @@ export default function MessageItem({
           )}
 
           {attachments.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1.5 border-t border-white/10 pt-2">
-              {attachments.map((file) => (
-                <span key={file.filename} className={`badge gap-1.5 ${isUser ? 'border-white/20 bg-white/10 text-white' : ''}`}>
-                  <span className="text-slate-400">файл</span>
-                  <span className="font-mono">{file.filename}</span>
-                  <span className="text-slate-500">{formatSize(file.size)}</span>
-                </span>
+            <div className="mt-3 space-y-2 border-t border-white/10 pt-3">
+              {attachments.map((file, index) => (
+                <AttachmentFile key={`${file.filename}-${index}`} file={file} />
               ))}
             </div>
           )}
@@ -118,6 +116,27 @@ function TypingDots() {
           style={{ animationDelay: `${delay}ms` }}
         />
       ))}
+    </div>
+  )
+}
+
+function AttachmentFile({ file }: { file: Attachment }) {
+  if (/\.json$/i.test(file.filename) && file.content !== undefined) {
+    return <JsonFileCard content={file.content} filename={file.filename} />
+  }
+
+  const extension = file.filename.split('.').pop()?.toUpperCase() || 'ФАЙЛ'
+  return (
+    <div className="flex w-full min-w-64 items-center gap-3 rounded-xl border border-surface-600 bg-surface-900 p-3 text-left">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-accent-600">
+        <Icon data={FileText} size={23} />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-medium text-slate-100">{file.filename}</span>
+        <span className="mt-0.5 block text-xs text-slate-500">
+          {extension} · {formatSize(file.size)}
+        </span>
+      </span>
     </div>
   )
 }
