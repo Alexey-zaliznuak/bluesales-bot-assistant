@@ -1,0 +1,16 @@
+.env
+*.local
+
+node_modules/
+dist/
+.vite/
+
+bin/
+*.exe
+*.test
+vendor/
+
+.DS_Store
+.idea/
+.vscode/
+*.log
