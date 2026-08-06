@@ -25,15 +25,14 @@ const defaultChatTitle = "Новый чат"
 type chatResponse struct {
 	*store.Chat
 	KnowledgeBase *knowledgeBaseInfo `json:"knowledgeBase"`
-	Messages      []store.Message    `json:"messages,omitempty"`
+	Messages      []store.Message    `json:"messages"`
 }
 
 type knowledgeBaseInfo struct {
-	SnapshotID     string     `json:"snapshotId"`
-	DocumentsCount int        `json:"documentsCount"`
-	CharsCount     int        `json:"charsCount"`
-	WarmedAt       *time.Time `json:"warmedAt"`
-	CreatedAt      time.Time  `json:"createdAt"`
+	SnapshotID     string    `json:"snapshotId"`
+	DocumentsCount int       `json:"documentsCount"`
+	CharsCount     int       `json:"charsCount"`
+	CreatedAt      time.Time `json:"createdAt"`
 }
 
 func (s *Server) handleListChats(w http.ResponseWriter, r *http.Request) {
@@ -83,7 +82,11 @@ func (s *Server) handleCreateChat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusCreated, chatResponse{Chat: chat, KnowledgeBase: snapshotInfo(snapshot)})
+	writeJSON(w, http.StatusCreated, chatResponse{
+		Chat:          chat,
+		KnowledgeBase: snapshotInfo(snapshot),
+		Messages:      []store.Message{},
+	})
 }
 
 func (s *Server) handleGetChat(w http.ResponseWriter, r *http.Request) {
@@ -224,14 +227,7 @@ func (s *Server) handleSendMessage(w http.ResponseWriter, r *http.Request) {
 	}
 	messages = append(messages, openrouter.TextMessage("user", userContent(text, attachments)))
 
-	req := openrouter.ChatRequest{
-		Messages: messages,
-		// Липкий роутинг на того же провайдера — иначе кэш префикса не найдётся.
-		SessionID: chat.ID,
-	}
-	if snapshot != nil {
-		req.PromptCacheKey = snapshot.CacheKey
-	}
+	req := openrouter.ChatRequest{Messages: messages}
 
 	s.streamAnswer(w, r, chat, userMessage, req)
 }
@@ -375,7 +371,6 @@ func snapshotInfo(snapshot *store.KBSnapshot) *knowledgeBaseInfo {
 		SnapshotID:     snapshot.ID,
 		DocumentsCount: snapshot.DocumentsCount,
 		CharsCount:     snapshot.CharsCount,
-		WarmedAt:       snapshot.WarmedAt,
 		CreatedAt:      snapshot.CreatedAt,
 	}
 }
@@ -388,7 +383,6 @@ func toStoreUsage(u *openrouter.Usage) *store.Usage {
 		PromptTokens:     u.PromptTokens,
 		CompletionTokens: u.CompletionTokens,
 		TotalTokens:      u.TotalTokens,
-		CachedTokens:     u.CachedTokens(),
 		ReasoningTokens:  u.ReasoningTokens(),
 		Cost:             u.Cost,
 	}

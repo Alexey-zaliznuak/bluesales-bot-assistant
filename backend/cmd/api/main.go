@@ -44,7 +44,7 @@ func main() {
 		os.Exit(1)
 	}
 	if !client.Configured() {
-		slog.Warn("OPENROUTER_API_KEY не задан: чаты и прогрев кэша работать не будут")
+		slog.Warn("OPENROUTER_API_KEY не задан: чаты работать не будут")
 	}
 
 	st := store.New(pool)
@@ -63,7 +63,6 @@ func main() {
 			"port", cfg.APIPort,
 			"model", cfg.OpenRouter.Model,
 			"reasoningEffort", cfg.OpenRouter.ReasoningEffort,
-			"cacheMode", cfg.OpenRouter.CacheMode,
 			"proxy", cfg.OpenRouter.ProxyURL != "")
 		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			slog.Error("http-сервер", "error", err)

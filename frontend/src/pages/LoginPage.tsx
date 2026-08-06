@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { Alert, Button, PasswordInput, TextInput } from '@gravity-ui/uikit'
 
 import { useAuth } from '../hooks/useAuth'
 
@@ -23,49 +24,41 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex h-full items-center justify-center px-4">
-      <form onSubmit={handleSubmit} className="card w-full max-w-sm space-y-5 p-8">
+    <div className="relative flex h-full items-center justify-center overflow-hidden bg-surface-950 px-4">
+      <div className="absolute inset-x-0 top-0 h-1 bg-accent-500" />
+      <div className="absolute left-1/2 top-24 h-72 w-72 -translate-x-1/2 rounded-full bg-blue-100/70 blur-3xl" />
+      <form onSubmit={handleSubmit} className="card relative w-full max-w-md space-y-6 p-9">
         <div className="space-y-1">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-500 font-bold text-white">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-500 font-bold text-white shadow-sm">
             BS
           </div>
-          <h1 className="pt-3 text-lg font-semibold text-slate-100">Вход</h1>
-          <p className="text-sm text-slate-500">Ассистент по настройке ботов BlueSales</p>
+          <h1 className="pt-4 text-2xl font-semibold tracking-tight text-slate-100">Добро пожаловать</h1>
+          <p className="text-sm text-slate-500">Корпоративный AI-ассистент BlueSales</p>
         </div>
 
-        <div className="space-y-3">
-          <label className="block space-y-1.5">
-            <span className="text-xs font-medium uppercase tracking-wide text-slate-500">Логин</span>
-            <input
-              className="input"
-              value={loginValue}
-              onChange={(event) => setLoginValue(event.target.value)}
-              autoComplete="username"
-              autoFocus
-            />
-          </label>
-
-          <label className="block space-y-1.5">
-            <span className="text-xs font-medium uppercase tracking-wide text-slate-500">Пароль</span>
-            <input
-              className="input"
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              autoComplete="current-password"
-            />
-          </label>
+        <div className="space-y-4">
+          <TextInput
+            label="Логин"
+            size="xl"
+            value={loginValue}
+            onUpdate={setLoginValue}
+            autoComplete="username"
+            autoFocus
+          />
+          <PasswordInput
+            label="Пароль"
+            size="xl"
+            value={password}
+            onUpdate={setPassword}
+            autoComplete="current-password"
+          />
         </div>
 
-        {error && (
-          <div className="rounded-lg border border-red-900/60 bg-red-950/40 px-3 py-2 text-sm text-red-300">
-            {error}
-          </div>
-        )}
+        {error && <Alert theme="danger" message={error} />}
 
-        <button className="btn-primary w-full" type="submit" disabled={submitting}>
+        <Button view="action" size="xl" width="max" type="submit" loading={submitting}>
           {submitting ? 'Входим…' : 'Войти'}
-        </button>
+        </Button>
       </form>
     </div>
   )

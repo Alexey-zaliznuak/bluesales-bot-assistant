@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Button, Icon, Label } from '@gravity-ui/uikit'
+import { Comments, Plus, TrashBin } from '@gravity-ui/icons'
 
 import { api, sendMessage } from '../api/client'
 import type { Attachment, Usage } from '../api/types'
@@ -33,6 +35,7 @@ export default function ChatsPage() {
     enabled: Boolean(chatId),
   })
   const kbStatusQuery = useQuery({ queryKey: ['kb-status'], queryFn: api.kbStatus })
+  const messages = chatQuery.data?.messages ?? []
 
   const createChatMutation = useMutation({
     mutationFn: () => api.createChat(),
@@ -64,7 +67,7 @@ export default function ChatsPage() {
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
-  }, [chatQuery.data?.messages.length, streamContent, pendingUser])
+  }, [messages.length, streamContent, pendingUser])
 
   const handleSend = async (text: string, files: File[]) => {
     if (!chatId) return
@@ -120,16 +123,24 @@ export default function ChatsPage() {
   const kbStatus = kbStatusQuery.data
 
   return (
-    <div className="flex h-full min-h-0">
-      <aside className="flex w-72 shrink-0 flex-col border-r border-surface-700 bg-surface-900/50">
-        <div className="border-b border-surface-700 p-3">
-          <button
-            className="btn-primary w-full"
+    <div className="flex h-full min-h-0 bg-surface-950 p-3">
+      <aside className="flex w-72 shrink-0 flex-col overflow-hidden rounded-l-xl border border-r-0 border-surface-700 bg-white">
+        <div className="space-y-3 border-b border-surface-700 p-4">
+          <div>
+            <h1 className="text-base font-semibold text-slate-100">Чаты</h1>
+            <p className="mt-0.5 text-xs text-slate-500">{chatsQuery.data?.length ?? 0} диалогов</p>
+          </div>
+          <Button
+            view="action"
+            size="l"
+            width="max"
             onClick={() => createChatMutation.mutate()}
             disabled={createChatMutation.isPending}
+            loading={createChatMutation.isPending}
           >
-            + Новый чат
-          </button>
+            <Button.Icon><Icon data={Plus} size={16} /></Button.Icon>
+            Новый чат
+          </Button>
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto p-2">
@@ -137,34 +148,40 @@ export default function ChatsPage() {
           {chatsQuery.data?.map((item) => (
             <div
               key={item.id}
-              className={`group mb-1 flex items-center gap-1 rounded-lg pr-1 transition-colors ${
-                item.id === chatId ? 'bg-surface-700' : 'hover:bg-surface-800'
+              className={`group mb-1 flex items-center gap-1 rounded-lg border pr-1 transition-colors ${
+                item.id === chatId
+                  ? 'border-blue-200 bg-blue-50'
+                  : 'border-transparent hover:border-surface-700 hover:bg-surface-800'
               }`}
             >
               <button
                 className="min-w-0 flex-1 px-3 py-2 text-left"
                 onClick={() => navigate(`/chats/${item.id}`)}
               >
-                <div className="truncate text-sm text-slate-200">{item.title}</div>
+                <div className={`truncate text-sm font-medium ${item.id === chatId ? 'text-accent-600' : 'text-slate-200'}`}>
+                  {item.title}
+                </div>
                 <div className="truncate text-xs text-slate-500">
                   {new Date(item.updatedAt).toLocaleString('ru-RU')}
                 </div>
               </button>
-              <button
-                className="hidden shrink-0 rounded px-2 py-1 text-slate-500 hover:text-red-400 group-hover:block"
+              <Button
+                view="flat-danger"
+                size="s"
+                className="invisible shrink-0 group-hover:visible"
                 onClick={() => {
                   if (confirm('Удалить чат?')) deleteChatMutation.mutate(item.id)
                 }}
                 aria-label="Удалить чат"
               >
-                ×
-              </button>
+                <Icon data={TrashBin} size={14} />
+              </Button>
             </div>
           ))}
         </div>
       </aside>
 
-      <section className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <section className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-r-xl border border-surface-700 bg-white">
         {!chatId ? (
           <EmptyState
             hasKB={Boolean(kbStatus?.snapshot)}
@@ -173,31 +190,32 @@ export default function ChatsPage() {
           />
         ) : (
           <>
-            <div className="flex shrink-0 flex-wrap items-center gap-3 border-b border-surface-700 px-4 py-2.5">
-              <h1 className="truncate text-sm font-medium text-slate-100">{chat?.title ?? '…'}</h1>
+            <div className="flex min-h-14 shrink-0 flex-wrap items-center gap-3 border-b border-surface-700 px-5 py-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-accent-600">
+                <Icon data={Comments} size={17} />
+              </div>
+              <h1 className="truncate text-sm font-semibold text-slate-100">{chat?.title ?? '…'}</h1>
               <div className="ml-auto flex flex-wrap items-center gap-2 text-xs text-slate-500">
                 {chat?.knowledgeBase ? (
-                  <span className="badge" title={`Снимок от ${new Date(chat.knowledgeBase.createdAt).toLocaleString('ru-RU')}`}>
+                  <Label theme="success" size="s" title={`Снимок от ${new Date(chat.knowledgeBase.createdAt).toLocaleString('ru-RU')}`}>
                     контекст: {chat.knowledgeBase.documentsCount} докум. ·{' '}
                     {chat.knowledgeBase.charsCount.toLocaleString('ru-RU')} симв.
-                  </span>
+                  </Label>
                 ) : (
-                  <span className="badge border-amber-800 bg-amber-950/50 text-amber-300">
-                    база знаний не подключена
-                  </span>
+                  <Label theme="warning" size="s">база знаний не подключена</Label>
                 )}
-                <span className="badge font-mono">{chat?.model}</span>
+                <Label theme="normal" size="s">{chat?.model}</Label>
               </div>
             </div>
 
-            <div ref={scrollRef} className="min-h-0 flex-1 space-y-5 overflow-y-auto px-4 py-5">
-              {chat?.messages.length === 0 && !pendingUser && (
+            <div ref={scrollRef} className="min-h-0 flex-1 space-y-5 overflow-y-auto bg-surface-950/60 px-6 py-6">
+              {messages.length === 0 && !pendingUser && (
                 <p className="pt-10 text-center text-sm text-slate-500">
                   Спросите, как настроить бота в BlueSales — ассистент ответит по загруженной базе знаний.
                 </p>
               )}
 
-              {chat?.messages.map((message) => (
+              {messages.map((message) => (
                 <MessageItem
                   key={message.id}
                   role={message.role}
@@ -223,7 +241,7 @@ export default function ChatsPage() {
               )}
 
               {streamError && (
-                <div className="mx-auto max-w-2xl rounded-lg border border-red-900/60 bg-red-950/40 px-3 py-2 text-sm text-red-300">
+                <div className="mx-auto max-w-2xl rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                   {streamError}
                 </div>
               )}
@@ -237,7 +255,7 @@ export default function ChatsPage() {
             />
 
             {!kbStatus?.openrouterKeySet && (
-              <div className="border-t border-amber-900/50 bg-amber-950/30 px-4 py-2 text-xs text-amber-300">
+              <div className="border-t border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-700">
                 Не задан OPENROUTER_API_KEY — отправка сообщений отключена.
               </div>
             )}
@@ -259,19 +277,23 @@ function EmptyState({
 }) {
   return (
     <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
-      <h2 className="text-lg font-medium text-slate-200">Чат с ассистентом BlueSales</h2>
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-accent-600">
+        <Icon data={Comments} size={26} />
+      </div>
+      <h2 className="text-xl font-semibold text-slate-100">Чат с ассистентом BlueSales</h2>
       <p className="max-w-md text-sm text-slate-500">
-        Новый чат берёт текущий снимок базы знаний как кэшируемый контекст. Пересборка базы позже не меняет
+        Новый чат берёт текущий снимок базы знаний как контекст. Пересборка базы позже не меняет
         контекст уже начатых чатов.
       </p>
       {!hasKB && (
-        <p className="max-w-md rounded-lg border border-amber-900/60 bg-amber-950/30 px-3 py-2 text-xs text-amber-300">
+        <p className="max-w-md rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700">
           База знаний ещё не синхронизирована — чат будет работать без контекста документов.
         </p>
       )}
-      <button className="btn-primary" onClick={onCreate} disabled={creating}>
-        + Новый чат
-      </button>
+      <Button view="action" size="l" onClick={onCreate} disabled={creating} loading={creating}>
+        <Button.Icon><Icon data={Plus} size={16} /></Button.Icon>
+        Новый чат
+      </Button>
     </div>
   )
 }

@@ -15,14 +15,9 @@ export interface Document {
 export interface KBSnapshot {
   id: string
   contentHash: string
-  cacheKey: string
   documentsCount: number
   charsCount: number
   isActive: boolean
-  warmedAt: string | null
-  warmError: string | null
-  promptTokens: number | null
-  cachedTokens: number | null
   createdAt: string
 }
 
@@ -34,24 +29,18 @@ export interface KBStatus {
   currentCharsCount: number
   stale: boolean
   model: string
-  cacheMode: string
-  cacheTtl: string
   reasoningEffort: string
   openrouterKeySet: boolean
 }
 
 export interface KBSyncResult {
   snapshot: KBSnapshot
-  warmed: boolean
-  warmSkipped?: string
-  warmError?: string
 }
 
 export interface KnowledgeBaseInfo {
   snapshotId: string
   documentsCount: number
   charsCount: number
-  warmedAt: string | null
   createdAt: string
 }
 
@@ -74,7 +63,6 @@ export interface Usage {
   promptTokens: number
   completionTokens: number
   totalTokens: number
-  cachedTokens: number
   reasoningTokens: number
   cost?: number
 }

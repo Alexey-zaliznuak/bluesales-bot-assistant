@@ -35,9 +35,9 @@ export default function TagInput({ values, suggestions, onChange }: Props) {
 
   return (
     <div className="space-y-1.5">
-      <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-surface-600 bg-surface-900 px-2 py-1.5">
+      <div className="flex flex-wrap items-center gap-1.5 rounded-lg border border-surface-600 bg-white px-2 py-1.5 shadow-sm focus-within:border-accent-500 focus-within:ring-2 focus-within:ring-blue-100">
         {values.map((value) => (
-          <span key={value} className="badge gap-1 bg-accent-500/15 text-accent-400">
+          <span key={value} className="badge gap-1 border-blue-200 bg-blue-50 text-accent-600">
             {value}
             <button
               className="text-slate-500 hover:text-slate-200"

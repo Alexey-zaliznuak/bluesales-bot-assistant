@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Button, Icon } from '@gravity-ui/uikit'
+import { ArrowRotateLeft, Eye } from '@gravity-ui/icons'
 
 import { api } from '../api/client'
 import type { KBSyncResult } from '../api/types'
@@ -29,7 +31,7 @@ export default function KnowledgeBasePanel() {
   const snapshot = status?.snapshot ?? null
 
   return (
-    <div className="border-b border-surface-700 bg-surface-900/50 px-4 py-3">
+    <div className="border-b border-surface-700 bg-white px-5 py-4">
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2">
           <span
@@ -44,23 +46,27 @@ export default function KnowledgeBasePanel() {
           {status
             ? status.stale
               ? snapshot
-                ? 'изменения не синхронизированы с OpenRouter'
+                ? 'изменения не включены в активный снимок'
                 : 'ещё ни разу не синхронизирована'
               : 'синхронизирована'
             : '…'}
         </span>
 
         <div className="ml-auto flex items-center gap-2">
-          <button className="btn-ghost text-xs" onClick={() => setPreviewOpen(true)}>
+          <Button view="flat-secondary" size="m" onClick={() => setPreviewOpen(true)}>
+            <Button.Icon><Icon data={Eye} size={16} /></Button.Icon>
             Показать префикс
-          </button>
-          <button
-            className="btn-primary"
+          </Button>
+          <Button
+            view="action"
+            size="m"
             disabled={syncMutation.isPending || status?.documentsCount === 0}
+            loading={syncMutation.isPending}
             onClick={() => syncMutation.mutate()}
           >
+            <Button.Icon><Icon data={ArrowRotateLeft} size={16} /></Button.Icon>
             {syncMutation.isPending ? 'Синхронизация…' : 'Синхронизировать базу знаний'}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -79,45 +85,20 @@ export default function KnowledgeBasePanel() {
             <span>
               Снимок: <span className="font-mono text-slate-300">{snapshot.contentHash.slice(0, 12)}</span>
             </span>
-            <span>
-              Кэш-ключ: <span className="font-mono text-slate-300">{snapshot.cacheKey}</span>
-            </span>
-            <span>
-              Прогрет:{' '}
-              <span className="text-slate-300">
-                {snapshot.warmedAt ? new Date(snapshot.warmedAt).toLocaleString('ru-RU') : 'нет'}
-              </span>
-            </span>
-            {snapshot.promptTokens != null && (
-              <span>
-                Токенов в префиксе: <span className="text-slate-300">{snapshot.promptTokens.toLocaleString('ru-RU')}</span>
-              </span>
-            )}
           </>
         )}
       </div>
 
       {result && (
-        <div
-          className={`mt-2 rounded-lg border px-3 py-2 text-xs ${
-            result.warmError
-              ? 'border-amber-900/60 bg-amber-950/30 text-amber-300'
-              : 'border-emerald-900/60 bg-emerald-950/30 text-emerald-300'
-          }`}
-        >
-          {result.warmError
-            ? `Снимок сохранён, но прогрев кэша не удался: ${result.warmError}`
-            : result.warmSkipped
-              ? `Снимок сохранён. ${result.warmSkipped}`
-              : `Снимок сохранён и кэш префикса прогрет: ${result.snapshot.documentsCount} докум., ` +
-                `${result.snapshot.promptTokens?.toLocaleString('ru-RU') ?? '?'} токенов в префиксе. ` +
-                'Следующие запросы читают его из кэша по сниженной цене.'}
+        <div className="mt-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+          Снимок сохранён: {result.snapshot.documentsCount} докум.,{' '}
+          {result.snapshot.charsCount.toLocaleString('ru-RU')} симв.
         </div>
       )}
 
-      {(error || snapshot?.warmError) && !result && (
-        <div className="mt-2 rounded-lg border border-red-900/60 bg-red-950/40 px-3 py-2 text-xs text-red-300">
-          {error ?? snapshot?.warmError}
+      {error && !result && (
+        <div className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+          {error}
         </div>
       )}
 
@@ -130,21 +111,21 @@ function PreviewModal({ onClose }: { onClose: () => void }) {
   const previewQuery = useQuery({ queryKey: ['kb-preview'], queryFn: api.kbPreview })
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-100/35 p-6 backdrop-blur-sm" onClick={onClose}>
       <div
         className="card flex max-h-[80vh] w-full max-w-4xl flex-col overflow-hidden"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-surface-700 px-4 py-3">
           <div>
-            <h2 className="text-sm font-semibold text-slate-100">Кэшируемый префикс промпта</h2>
+            <h2 className="text-sm font-semibold text-slate-100">Контекст базы знаний</h2>
             <p className="text-xs text-slate-500">
-              Ровно этот текст уходит первым system-блоком и кэшируется в OpenRouter
+              Этот текст отправляется модели первым системным сообщением
             </p>
           </div>
-          <button className="btn-ghost" onClick={onClose}>
+          <Button view="flat-secondary" size="m" onClick={onClose}>
             Закрыть
-          </button>
+          </Button>
         </div>
         <pre className="min-h-0 flex-1 overflow-auto whitespace-pre-wrap break-words p-4 font-mono text-xs text-slate-300">
           {previewQuery.isLoading ? 'Загрузка…' : previewQuery.data?.content}

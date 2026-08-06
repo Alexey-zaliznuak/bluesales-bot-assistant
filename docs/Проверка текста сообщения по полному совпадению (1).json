@@ -1,0 +1,67 @@
+{
+  "automationRules": [
+    {
+      "conditions": [
+        {
+          "type": "newMessage",
+          "anyWordsInMessageWholeMatch": [
+            "да",
+            "конечно",
+            "ага"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "Клиент согласился :)"
+        }
+      ]
+    },
+    {
+      "conditions": [
+        {
+          // Срабатывает, если клиент написал "как ... заказ" или "как ... заказать".
+          "or": [
+            {
+              "type": "newMessage",
+              "allWordsInMessageWholeMatch": [
+                "как",
+                "заказ"
+              ]
+            },
+            {
+              "type": "newMessage",
+              "allWordsInMessageWholeMatch": [
+                "как",
+                "заказать"
+              ]
+            }
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "Клиент хочет оформить заказ."
+        }
+      ]
+    },
+    {
+      "conditions": [
+        {
+          "type": "newMessage",
+          "anyWordsInMessage": [
+            "да"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "В сообщении клиента есть буквы «да» («да», «вода» и др.)"
+        }
+      ]
+    }
+  ]
+}

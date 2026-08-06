@@ -1,4 +1,6 @@
 import { useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react'
+import { Button, Icon } from '@gravity-ui/uikit'
+import { PaperPlane, Paperclip, Stop } from '@gravity-ui/icons'
 
 interface Props {
   disabled: boolean
@@ -38,7 +40,7 @@ export default function Composer({ disabled, streaming, onSend, onStop }: Props)
   }
 
   return (
-    <div className="border-t border-surface-700 bg-surface-900/60 p-3">
+    <div className="border-t border-surface-700 bg-white px-5 py-4">
       {files.length > 0 && (
         <div className="mb-2 flex flex-wrap gap-1.5">
           {files.map((file, index) => (
@@ -57,14 +59,16 @@ export default function Composer({ disabled, streaming, onSend, onStop }: Props)
       )}
 
       <div className="flex items-end gap-2">
-        <button
-          className="btn-secondary h-10 px-3"
+        <Button
+          view="outlined"
+          size="l"
           onClick={() => fileInputRef.current?.click()}
           disabled={disabled}
           title="Прикрепить текстовые файлы"
         >
+          <Button.Icon><Icon data={Paperclip} size={16} /></Button.Icon>
           Файл
-        </button>
+        </Button>
         <input
           ref={fileInputRef}
           type="file"
@@ -91,13 +95,15 @@ export default function Composer({ disabled, streaming, onSend, onStop }: Props)
         />
 
         {streaming ? (
-          <button className="btn-danger h-10" onClick={onStop}>
+          <Button view="outlined-danger" size="l" onClick={onStop}>
+            <Button.Icon><Icon data={Stop} size={16} /></Button.Icon>
             Остановить
-          </button>
+          </Button>
         ) : (
-          <button className="btn-primary h-10" onClick={submit} disabled={disabled}>
+          <Button view="action" size="l" onClick={submit} disabled={disabled}>
+            <Button.Icon><Icon data={PaperPlane} size={16} /></Button.Icon>
             Отправить
-          </button>
+          </Button>
         )}
       </div>
 

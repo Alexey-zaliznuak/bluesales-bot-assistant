@@ -1,0 +1,100 @@
+// Демонстрация возможности проверки количества заказов у клиента.
+// Клиент пишет "да" => отправляем ему сообщение с информацией о количестве заказов.
+
+{
+  "automationRules": [
+    {
+      "conditions": [
+        {
+          "type": "newMessage",
+          "anyWordsInMessage": [
+            "да"
+          ]
+        },
+        {
+          "type": "ordersNumberEquals",
+          "value": 2
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "Количество заказов = 2"
+        }
+      ]
+    },
+    {
+      "conditions": [
+        {
+          "type": "new",
+          "anyWordsInMessage": [
+            "да"
+          ]
+        },
+        {
+          "type": "ordersNumberEquals",
+		  // Количество заказов больше 2 и меньше 5.
+          "greaterThan": 2,
+          "lessThan": 5
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "Количество заказов > 2 и < 5"
+        }
+      ]
+    },
+    {
+      "conditions": [
+        {
+          "type": "newMessage",
+          "anyWordsInMessage": [
+            "да"
+          ]
+        },
+        {
+          "type": "ordersNumberEquals",
+		  // Количество заказов больше или равно 2 и меньше или равно 5.
+          "greaterThanOrEqualTo": 2,
+          "lessThanOrEqualTo": 5
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "Количество заказов >= 2 и <= 5"
+        }
+      ]
+    },
+    {
+      "conditions": [
+        {
+          "type": "newMessage",
+          "anyWordsInMessage": [
+            "да"
+          ]
+        },
+        {
+          "type": "ordersNumberEquals",
+		  // Рассчитываем количество заказов, имеющих один из перечисленных статусов.
+          "withStatuses": [
+            {
+              "name": "Доставлен"
+            },
+            {
+              "name": "Отправлен"
+            }
+          ],
+          "value": 2
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "Есть 2 заказа со статусами «Доставлен» или «Отправлен»."
+        }
+      ]
+    }
+  ]
+}

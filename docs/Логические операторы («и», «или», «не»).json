@@ -1,0 +1,61 @@
+{
+  "automationRules": [
+    {
+      "conditions": [
+        {
+          "type": "newMessage"
+        },
+        {
+          // Условие "или".
+          // В данном случае мы проверяем, что у клиента установлен тэг "VIP"
+          // или тэг "Постоянный клиент".
+          "or": [
+            {
+              "type": "hasTag",
+              "name": "VIP"
+            },
+            {
+              "type": "hasTag",
+              "name": "Постоянный клиент"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "У клиента стоит тэг VIP или тэг Постоянный клиент."
+        }
+      ]
+    },
+    {
+      "conditions": [
+        {
+          "type": "newMessage"
+        },
+        {
+          "and": [
+            {
+              "not": {
+                "type": "hasTag",
+                "name": "VIP"
+              }
+            },
+            {
+              "not": {
+                "type": "hasTag",
+                "name": "Постоянный клиент"
+              }
+            }
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "У клиента не стоит ни тэг VIP, ни тэг Постоянный клиент."
+        }
+      ]
+    }
+  ]
+}

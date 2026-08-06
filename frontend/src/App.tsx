@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { Spin } from '@gravity-ui/uikit'
 
 import Layout from './components/Layout'
 import { useAuth } from './hooks/useAuth'
@@ -11,7 +12,9 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center text-sm text-slate-500">Загрузка…</div>
+      <div className="flex h-full items-center justify-center bg-surface-950">
+        <Spin size="l" />
+      </div>
     )
   }
 

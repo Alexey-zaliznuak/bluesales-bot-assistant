@@ -33,19 +33,14 @@ CREATE TABLE documents (
 CREATE INDEX documents_categories_idx ON documents USING gin (categories);
 CREATE INDEX documents_updated_at_idx ON documents (updated_at DESC);
 
--- Снимок склеенной базы знаний: то, что уходит в кэшируемый префикс промпта.
+-- Снимок склеенной базы знаний, привязанный к чатам.
 CREATE TABLE kb_snapshots (
     id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     content         text NOT NULL,
     content_hash    text NOT NULL UNIQUE,
-    cache_key       text NOT NULL,
     documents_count integer NOT NULL DEFAULT 0,
     chars_count     integer NOT NULL DEFAULT 0,
     is_active       boolean NOT NULL DEFAULT false,
-    warmed_at       timestamptz,
-    warm_error      text,
-    prompt_tokens   integer,
-    cached_tokens   integer,
     created_at      timestamptz NOT NULL DEFAULT now()
 );
 

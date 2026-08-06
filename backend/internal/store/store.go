@@ -39,18 +39,13 @@ type Document struct {
 }
 
 type KBSnapshot struct {
-	ID             string     `json:"id"`
-	Content        string     `json:"-"`
-	ContentHash    string     `json:"contentHash"`
-	CacheKey       string     `json:"cacheKey"`
-	DocumentsCount int        `json:"documentsCount"`
-	CharsCount     int        `json:"charsCount"`
-	IsActive       bool       `json:"isActive"`
-	WarmedAt       *time.Time `json:"warmedAt"`
-	WarmError      *string    `json:"warmError"`
-	PromptTokens   *int       `json:"promptTokens"`
-	CachedTokens   *int       `json:"cachedTokens"`
-	CreatedAt      time.Time  `json:"createdAt"`
+	ID             string    `json:"id"`
+	Content        string    `json:"-"`
+	ContentHash    string    `json:"contentHash"`
+	DocumentsCount int       `json:"documentsCount"`
+	CharsCount     int       `json:"charsCount"`
+	IsActive       bool      `json:"isActive"`
+	CreatedAt      time.Time `json:"createdAt"`
 }
 
 type Chat struct {
@@ -73,7 +68,6 @@ type Usage struct {
 	PromptTokens     int      `json:"promptTokens"`
 	CompletionTokens int      `json:"completionTokens"`
 	TotalTokens      int      `json:"totalTokens"`
-	CachedTokens     int      `json:"cachedTokens"`
 	ReasoningTokens  int      `json:"reasoningTokens"`
 	Cost             *float64 `json:"cost,omitempty"`
 }

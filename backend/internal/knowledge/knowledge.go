@@ -9,8 +9,8 @@ import (
 	"github.com/alex/bluesales-bot-assistant/backend/internal/store"
 )
 
-// SystemInstructions — начало кэшируемого префикса. Меняется вместе с версией
-// формата: любое изменение текста меняет хеш и требует новой синхронизации.
+// SystemInstructions — начало контекста базы знаний. Любое изменение текста
+// меняет хеш и требует новой синхронизации.
 const SystemInstructions = `Ты — ассистент по настройке и созданию ботов в сервисе BlueSales.
 
 Твоя роль:
@@ -25,21 +25,18 @@ const SystemInstructions = `Ты — ассистент по настройке 
 4. Отвечай по-русски, конкретно и по шагам. Готовые конфигурации и сценарии оформляй так же, как в примерах базы знаний.
 5. Если запрос неоднозначный, задай один-два уточняющих вопроса вместо догадок.`
 
-// Format описывает разметку склейки: она стабильна и попадает в хеш,
-// чтобы смена формата инвалидировала кэш.
+// Format описывает разметку склейки и входит в хеш снимка.
 const Format = "xml/v1"
 
 type BuildResult struct {
 	Content        string
 	Hash           string
-	CacheKey       string
 	DocumentsCount int
 	CharsCount     int
 }
 
-// Build склеивает документы в один текст для кэшируемого префикса промпта.
-// Порядок документов задаёт вызывающий код и он должен быть стабильным:
-// любое отличие в байтах — это промах мимо кэша OpenRouter.
+// Build склеивает документы в один текст для системного сообщения.
+// Стабильный порядок документов обеспечивает стабильный хеш снимка.
 func Build(docs []store.Document) BuildResult {
 	var sb strings.Builder
 
@@ -66,7 +63,6 @@ func Build(docs []store.Document) BuildResult {
 	return BuildResult{
 		Content:        content,
 		Hash:           hash,
-		CacheKey:       "bsa-kb-" + hash[:32],
 		DocumentsCount: len(docs),
 		CharsCount:     len([]rune(content)),
 	}

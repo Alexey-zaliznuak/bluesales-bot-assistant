@@ -1,0 +1,124 @@
+// Бот может проверять наличие вложения в сообщении,
+// проверять его тип и содержание и реагировать на это соответствующим образом.
+
+{
+  "automationRules": [
+    {
+      "conditions": [
+        {
+          "type": "newMessage",
+          "isOut": false,
+          // Проверяем, что к сообщению приложено вложение.
+          "hasAttachment": {
+            // Означает, что вложение может быть любого вида (фото, видео и др.)
+            "anyType": true
+          }
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "Вы прислали какое-то вложение."
+        }
+      ]
+    },
+    {
+      "conditions": [
+        {
+          "type": "newMessage",
+          "isOut": false,
+          "hasAttachment": {
+            // Проверяем вид вложения: в данном случае реагируем
+            // только на изображения.
+
+            // Виды вложений:
+            // sticker = стикер
+            // image = изображение
+            // video = видео
+            // videoNote = видео "в кружочке"
+            // animation = анимация (только в ботах Telegram)
+            // audio = аудио
+            // voice = голосовое сообщение
+            // document = документ
+            // geo = гео-метка
+            // wall = пост на стене
+            // link = ссылка
+            // comment = комментарий на стене, отправленный через сообщения
+            // keyboard = клавиатура, отправленная клиенту, или нажатая им кнопка этой клавиатуры
+            "type": "image"
+          }
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "Вы прислали фото."
+        }
+      ]
+    },
+    {
+      "conditions": [
+        {
+          "type": "newMessage",
+          "isOut": false,
+          "hasAttachment": {
+            "type": "image",
+            // Проверяем содержание вложения.
+            // Бот проверяет как ссылку на вложение, так и его код.
+            "attachment": {
+              // Проверка точного значения кода вложения (такой формат у вложений в ботах Telegram).
+              "equals": "AgACAgIAAxkBAAM4YOdgE_ZSZMzI5Rg1Y3LeH11rnA0AAlu1MRuS1zlLl8B7l0oAARHiAQADAgADeQADIAQ"
+            }
+          }
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "Вы прислали фотографию бассейна."
+        }
+      ]
+    },
+    {
+      "conditions": [
+        {
+          "type": "newMessage",
+          "isOut": false,
+          "hasAttachment": {
+            // Голосовое сообщение.
+            "type": "voice"
+          }
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "Вы прислали голосовое сообщение."
+        }
+      ]
+    },
+    {
+      "conditions": [
+        {
+          "type": "newMessage",
+          "isOut": false,
+          "hasAttachment": {
+            "attachment": {
+              // Проверяем, что ссылка или код вложения содержит определенный фрагмент.
+              // Также можно использовать "containsAny": [ "BGCHAjUAI", "YTGNBbHU" ] для проверки
+              // соответствия вложения нескольким фрагментам, а также "equalsAny": [ "...", "..." ]
+              // для проверки точного соответствия вложения одному из набора строк.
+              "contains": "BAACAgIAA"
+            }
+          }
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "Вы прислали какое-то вложение, в ссылке или коде которого содержится фрагмент 'BAACAgIAA'."
+        }
+      ]
+    }
+  ]
+}

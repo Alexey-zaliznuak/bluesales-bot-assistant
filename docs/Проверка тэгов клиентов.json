@@ -1,0 +1,96 @@
+// Проверка наличия у клиента тэгов.
+
+{
+  "automationRules": [
+    {
+      "conditions": [
+        {
+          "type": "newMessage",
+          // Сообщение от клиента.
+          "isOut": false
+        },
+        {
+          "type": "hasTag",
+          "name": "Важный клиент"
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "У вас стоит тэг «Важный клиент»."
+        }
+      ]
+    },
+    {
+      "conditions": [
+        {
+          "type": "newMessage",
+          "isOut": false
+        },
+        {
+          "type": "hasTags",
+          "tags": [
+            {
+              "name": "Оптовый клиент"
+            },
+            {
+              "name": "Браслеты"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "У вас стоят тэги «Оптовый клиент» и «Браслеты»."
+        }
+      ]
+    },
+    {
+      "conditions": [
+        {
+          "type": "newMessage",
+          "isOut": false
+        },
+        {
+          // "hasNoTag" срабатывает, если у клиента отсутствует определенный тэг.
+          "type": "hasNoTag",
+          "name": "Важный клиент"
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "У вас НЕ стоит тэг «Важный клиент»."
+        }
+      ]
+    },
+    {
+      "conditions": [
+        {
+          "type": "newMessage",
+          "isOut": false
+        },
+        {
+          // "hasNoTags" срабатывает, если у клиента отсутствует все перечисленные тэги.
+          // Если хотя бы один из тэгов имеется, условие не сработает.
+          "type": "hasNoTags",
+          "tags": [
+            {
+              "name": "Оптовый клиент"
+            },
+            {
+              "name": "Браслеты"
+            }
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "У вас НЕ стоит ни тэг «Оптовый клиент», ни тэг «Браслеты»."
+        }
+      ]
+    }
+  ]
+}

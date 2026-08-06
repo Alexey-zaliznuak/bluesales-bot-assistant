@@ -1,0 +1,44 @@
+// Если клиент пишет "да", отмечаем диалог как важный.
+// Если клиент пишет "нет", снимаем отметку важности у диалога.
+// Работает только в ВКонтакте.
+
+{
+  "automationRules": [
+    {
+      "conditions": [
+        {
+          "type": "newMessage",
+          "isOut": false,
+          "anyWordsInMessage": [
+            "да"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "type": "vkMarkAsImportantConversation",
+          // true: помечаем диалог как важный (помечаем его звездочкой).
+          "important": true
+        }
+      ]
+    },
+    {
+      "conditions": [
+        {
+          "type": "newMessage",
+          "isOut": false,
+          "anyWordsInMessage": [
+            "нет"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "type": "vkMarkAsImportantConversation",
+          // false: снимаем отметку важности с диалога (снимаем звездочку).
+          "important": false
+        }
+      ]
+    }
+  ]
+}

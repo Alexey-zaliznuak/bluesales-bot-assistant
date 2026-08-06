@@ -1,0 +1,166 @@
+// В данном файле приведен пример, как устанавливать и очищать значения
+// дополнительных полей клиентов различных типов.
+// 1) При отправке клиентом или менеджером слова "да" происходит установка значения полей.
+// 2) При отправке слова "нет" происходит очищение дополнительных полей.
+
+{
+  "automationRules": [
+    {
+      "conditions": [
+        {
+          "type": "newMessage",
+          "anyWordsInMessage": [
+            "да"
+          ]
+        }
+      ],
+      // Установка дополнительных полей различных типов.
+      // Чтобы пример работал, необходимо создать эти поля в разделе Настройки / Поля / Клиенты.
+      "actions": [
+        // Обычное текстовое поле.
+        {
+          "type": "setCustomerField",
+          // Здесь нужно указать название поля.
+          // В данном файле для наглядности названия полей совпадают с их типом.
+          // На практике нужно указывать именно те названия полей, которые у вас настроены
+          // в разделе Настройки / Поля / Клиенты.
+          "fieldName": "Текст",
+          "valueAsText": "Очень хороший клиент."
+        },
+        // Текстовая область (многострочное поле).
+        {
+          "type": "setCustomerField",
+          "fieldName": "Текстовая область",
+          "valueAsText": "Тут можно делать переносы на новую строку.\n\nВот это уже новая строка."
+        },
+        // Поле типа "Дата".
+        {
+          "type": "setCustomerField",
+          "fieldName": "Дата",
+          "valueAsText": "28.02.2019"
+        },
+        // Для полей типа "Дата" можно устанавливать значение относительно сегодняшней даты:
+        // например, завтрашнюю, вчерашнюю дату и т. д.
+        {
+          "type": "setCustomerField",
+          "fieldName": "Дата подписки",
+          // 1 = завтра
+          // 0 = сегодня
+          // -1 = вчера
+          // 10 = через 10 дней
+          // -10 = 10 дней назад
+          "daysFromToday": 1
+        },
+        // Поле типа "Время".
+        {
+          "type": "setCustomerField",
+          "fieldName": "Время",
+          "valueAsText": "15:41"
+        },
+        // Поле типа "Дата и время".
+        {
+          "type": "setCustomerField",
+          "fieldName": "Дата и время",
+          "valueAsText": "08.03.2019 14:20"
+        },
+        // Поле типа "Флаг".
+        {
+          "type": "setCustomerField",
+          "fieldName": "Флаг",
+          "valueAsText": "Да"
+        },
+        // Поле типа "Число".
+        {
+          "type": "setCustomerField",
+          "fieldName": "Сумма",
+          "valueAsText": "125000"
+        },
+        // Поле типа "Список".
+        {
+          "type": "setCustomerField",
+          "fieldName": "Список",
+          "valueAsText": "Апельсин"
+        },
+        // Поле типа "Мультисписок".
+        {
+          "type": "setCustomerField",
+          "fieldName": "Мультисписок",
+          // Набор значений полей передается через запятую.
+          "valueAsText": "Гамбургер, Картошка"
+        },
+        // Добавление / удаление отдельных значений для полей
+        // типа "Мультисписок".
+        {
+          "type": "setCustomerField",
+          "fieldName": "Мультисписок",
+          // Так можно добавить новое значение к существующему мультисписку.
+          // Важно, чтобы это было одно из допустимых значений мультисписка,
+          // заданных в разделе Настройки / Поля / Клиенты.
+          "addValueAsText": "Пирожок",
+          // Так можно удалить 1 выбранное значение из мультисписка.
+          // Можно одновременно указывать значения addValueAsText и removeValueAsText,
+          // т. е. за 1 операцию и добавить, и удалить определенное значение у поля.
+          "removeValueAsText": "Гамбургер"
+        }
+      ]
+    },
+    {
+      "conditions": [
+        {
+          "type": "newMessage",
+          "anyWordsInMessage": [
+            "нет"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          "type": "setCustomerField",
+          "fieldName": "Текст",
+          // Таким образом очищаем значения полей.
+          "valueAsText": null
+        },
+        {
+          "type": "setCustomerField",
+          "fieldName": "Текстовая область",
+          "valueAsText": null
+        },
+        {
+          "type": "setCustomerField",
+          "fieldName": "Дата",
+          "valueAsText": null
+        },
+        {
+          "type": "setCustomerField",
+          "fieldName": "Время",
+          "valueAsText": null
+        },
+        {
+          "type": "setCustomerField",
+          "fieldName": "Дата и время",
+          "valueAsText": null
+        },
+        {
+          "type": "setCustomerField",
+          "fieldName": "Флаг",
+          "valueAsText": null
+        },
+        {
+          "type": "setCustomerField",
+          "fieldName": "Сумма",
+          "valueAsText": null
+        },
+        {
+          "type": "setCustomerField",
+          "fieldName": "Список",
+          "valueAsText": null
+        },
+        {
+          "type": "setCustomerField",
+          "fieldName": "Мультисписок",
+          "valueAsText": null
+        }
+      ]
+    }
+  ]
+}

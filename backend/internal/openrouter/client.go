@@ -106,8 +106,8 @@ func (c *Client) newRequest(ctx context.Context, method, path string, body any) 
 	return req, nil
 }
 
-// ApplyDefaults проставляет модель, режим рассуждений и параметры кэширования
-// префикса, если вызывающий код не задал их явно.
+// ApplyDefaults проставляет общие параметры запроса, если вызывающий код
+// не задал их явно.
 func (c *Client) ApplyDefaults(req *ChatRequest) {
 	if req.Model == "" {
 		req.Model = c.cfg.Model
@@ -118,50 +118,6 @@ func (c *Client) ApplyDefaults(req *ChatRequest) {
 	if req.Usage == nil {
 		req.Usage = &UsageOption{Include: true}
 	}
-	if req.PromptCacheOptions == nil && c.cfg.CacheMode == "explicit" {
-		req.PromptCacheOptions = &PromptCacheOptions{Mode: "explicit", TTL: c.cfg.CacheTTL}
-	}
-}
-
-func (c *Client) Complete(ctx context.Context, req ChatRequest) (*CompletionResult, error) {
-	req.Stream = false
-	req.StreamOptions = nil
-	c.ApplyDefaults(&req)
-
-	httpReq, err := c.newRequest(ctx, http.MethodPost, "/chat/completions", req)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := c.http.Do(httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("запрос к OpenRouter: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(io.LimitReader(resp.Body, 8<<20))
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, parseHTTPError(resp.StatusCode, body)
-	}
-
-	var parsed completionResponse
-	if err := json.Unmarshal(body, &parsed); err != nil {
-		return nil, fmt.Errorf("разбор ответа OpenRouter: %w", err)
-	}
-	if parsed.Error != nil {
-		return nil, &APIError{StatusCode: resp.StatusCode, Code: codeToString(parsed.Error.Code), Message: parsed.Error.Message}
-	}
-
-	result := &CompletionResult{Model: parsed.Model, Usage: parsed.Usage}
-	if len(parsed.Choices) > 0 {
-		result.Content = parsed.Choices[0].Message.Content
-		result.Reasoning = parsed.Choices[0].Message.Reasoning
-	}
-	return result, nil
 }
 
 type StreamCallbacks struct {

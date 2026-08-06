@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Button, Icon, TextInput } from '@gravity-ui/uikit'
+import { Magnifier, Plus, TrashBin } from '@gravity-ui/icons'
 
 import { api } from '../api/client'
 import type { Document } from '../api/types'
@@ -81,17 +83,24 @@ export default function DocumentsPage() {
     : draft.title.trim() !== '' || draft.body !== '' || draft.categories.length > 0
 
   return (
-    <div className="flex h-full min-h-0">
-      <aside className="flex w-80 shrink-0 flex-col border-r border-surface-700 bg-surface-900/50">
-        <div className="space-y-2 border-b border-surface-700 p-3">
-          <button className="btn-primary w-full" onClick={startNew}>
-            + Новый документ
-          </button>
-          <input
-            className="input"
+    <div className="flex h-full min-h-0 bg-surface-950 p-3">
+      <aside className="flex w-80 shrink-0 flex-col overflow-hidden rounded-l-xl border border-r-0 border-surface-700 bg-white">
+        <div className="space-y-3 border-b border-surface-700 p-4">
+          <div>
+            <h1 className="text-base font-semibold text-slate-100">База знаний</h1>
+            <p className="mt-0.5 text-xs text-slate-500">{documentsQuery.data?.length ?? 0} документов</p>
+          </div>
+          <Button view="action" size="l" width="max" onClick={startNew}>
+            <Button.Icon><Icon data={Plus} size={16} /></Button.Icon>
+            Новый документ
+          </Button>
+          <TextInput
+            size="l"
             placeholder="Поиск по заголовку и тексту"
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onUpdate={setSearch}
+            startContent={<Icon data={Magnifier} size={16} />}
+            hasClear
           />
           <div className="flex flex-wrap gap-1">
             <CategoryChip active={category === ''} onClick={() => setCategory('')} label="Все" />
@@ -115,11 +124,15 @@ export default function DocumentsPage() {
             <button
               key={doc.id}
               onClick={() => setSelectedId(doc.id)}
-              className={`mb-1 w-full rounded-lg px-3 py-2 text-left transition-colors ${
-                doc.id === selectedId ? 'bg-surface-700' : 'hover:bg-surface-800'
+              className={`mb-1 w-full rounded-lg border px-3 py-2.5 text-left transition-colors ${
+                doc.id === selectedId
+                  ? 'border-blue-200 bg-blue-50'
+                  : 'border-transparent hover:border-surface-700 hover:bg-surface-800'
               }`}
             >
-              <div className="truncate text-sm text-slate-200">{doc.title}</div>
+              <div className={`truncate text-sm font-medium ${doc.id === selectedId ? 'text-accent-600' : 'text-slate-200'}`}>
+                {doc.title}
+              </div>
               <div className="mt-0.5 truncate text-xs text-slate-500">
                 {doc.categories.length > 0 ? doc.categories.join(' · ') : 'без категорий'}
               </div>
@@ -128,34 +141,40 @@ export default function DocumentsPage() {
         </div>
       </aside>
 
-      <section className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <section className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-r-xl border border-surface-700 bg-white">
         <KnowledgeBasePanel />
 
-        <div className="flex min-h-0 flex-1 flex-col gap-3 p-4">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 p-5">
           <div className="flex items-center gap-2">
-            <input
-              className="input flex-1 text-base"
+            <TextInput
+              className="flex-1"
+              size="xl"
               placeholder="Человекочитаемый заголовок документа"
               value={draft.title}
-              onChange={(event) => setDraft({ ...draft, title: event.target.value })}
+              onUpdate={(title) => setDraft({ ...draft, title })}
             />
-            <button
-              className="btn-primary"
+            <Button
+              view="action"
+              size="l"
               disabled={!draft.title.trim() || !dirty || saveMutation.isPending}
+              loading={saveMutation.isPending}
               onClick={() => saveMutation.mutate()}
             >
               {saveMutation.isPending ? 'Сохраняем…' : selectedId ? 'Сохранить' : 'Создать'}
-            </button>
+            </Button>
             {selectedId && (
-              <button
-                className="btn-danger"
+              <Button
+                view="outlined-danger"
+                size="l"
                 disabled={deleteMutation.isPending}
+                loading={deleteMutation.isPending}
                 onClick={() => {
                   if (confirm('Удалить документ?')) deleteMutation.mutate(selectedId)
                 }}
               >
+                <Button.Icon><Icon data={TrashBin} size={16} /></Button.Icon>
                 Удалить
-              </button>
+              </Button>
             )}
           </div>
 
@@ -166,7 +185,7 @@ export default function DocumentsPage() {
           />
 
           {error && (
-            <div className="rounded-lg border border-red-900/60 bg-red-950/40 px-3 py-2 text-sm text-red-300">
+            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
               {error}
             </div>
           )}
@@ -180,7 +199,7 @@ export default function DocumentsPage() {
 
           <div className="flex justify-between text-xs text-slate-500">
             <span>{draft.body.length.toLocaleString('ru-RU')} символов</span>
-            {dirty && <span className="text-amber-400">есть несохранённые изменения</span>}
+            {dirty && <span className="font-medium text-blue-600">есть несохранённые изменения</span>}
           </div>
         </div>
       </section>
@@ -194,8 +213,8 @@ function CategoryChip({ label, active, onClick }: { label: string; active: boole
       onClick={onClick}
       className={`rounded-md border px-2 py-0.5 text-xs transition-colors ${
         active
-          ? 'border-accent-500 bg-accent-500/15 text-accent-400'
-          : 'border-surface-600 bg-surface-800 text-slate-400 hover:text-slate-200'
+          ? 'border-blue-200 bg-blue-50 text-accent-600'
+          : 'border-surface-600 bg-white text-slate-400 hover:bg-surface-800 hover:text-slate-200'
       }`}
     >
       {label}

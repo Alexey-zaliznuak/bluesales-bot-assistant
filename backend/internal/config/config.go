@@ -33,12 +33,8 @@ type OpenRouter struct {
 	ReasoningEffort string
 	ProxyURL        string
 	Timeout         time.Duration
-	// CacheMode: explicit — только помеченные блоки участвуют в кэше,
-	// auto — кэш-брейкпоинт ставит провайдер, off — кэширование не запрашиваем.
-	CacheMode   string
-	CacheTTL    string
-	AppTitle    string
-	HTTPReferer string
+	AppTitle        string
+	HTTPReferer     string
 }
 
 type Upload struct {
@@ -69,8 +65,6 @@ func Load() (*Config, error) {
 			ReasoningEffort: env("OPENROUTER_REASONING_EFFORT", "max"),
 			ProxyURL:        strings.TrimSpace(env("OPENROUTER_PROXY_URL", "")),
 			Timeout:         time.Duration(envInt("OPENROUTER_TIMEOUT_SECONDS", 300)) * time.Second,
-			CacheMode:       env("OPENROUTER_CACHE_MODE", "explicit"),
-			CacheTTL:        env("OPENROUTER_CACHE_TTL", "30m"),
 			AppTitle:        env("OPENROUTER_APP_TITLE", "BlueSales Bot Assistant"),
 			HTTPReferer:     env("OPENROUTER_HTTP_REFERER", ""),
 		},

@@ -36,9 +36,8 @@ func (s *Store) ListDocuments(ctx context.Context, f DocumentFilter) ([]Document
 	return docs, rows.Err()
 }
 
-// ListDocumentsForKnowledgeBase отдаёт документы в стабильном порядке:
-// склеенный текст должен быть побайтно одинаковым между синхронизациями,
-// иначе кэш префикса в OpenRouter не попадёт.
+// ListDocumentsForKnowledgeBase отдаёт документы в стабильном порядке,
+// чтобы одинаковое содержимое давало одинаковый хеш снимка.
 func (s *Store) ListDocumentsForKnowledgeBase(ctx context.Context) ([]Document, error) {
 	rows, err := s.pool.Query(ctx, `
 		SELECT id, title, categories, body, created_at, updated_at

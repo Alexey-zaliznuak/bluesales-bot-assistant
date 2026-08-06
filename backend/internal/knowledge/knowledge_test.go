@@ -21,9 +21,6 @@ func TestBuildIsDeterministic(t *testing.T) {
 	if first.Hash != second.Hash {
 		t.Fatalf("хеш нестабилен: %s != %s", first.Hash, second.Hash)
 	}
-	if first.CacheKey != second.CacheKey {
-		t.Fatalf("ключ кэша нестабилен: %s != %s", first.CacheKey, second.CacheKey)
-	}
 }
 
 func TestBuildHashChangesWithContent(t *testing.T) {
@@ -55,9 +52,6 @@ func TestBuildStructure(t *testing.T) {
 
 	if result.DocumentsCount != 2 {
 		t.Errorf("documentsCount = %d, ожидалось 2", result.DocumentsCount)
-	}
-	if !strings.HasPrefix(result.CacheKey, "bsa-kb-") {
-		t.Errorf("неожиданный ключ кэша: %s", result.CacheKey)
 	}
 }
 

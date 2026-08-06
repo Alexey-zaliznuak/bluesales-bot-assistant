@@ -1,0 +1,22 @@
+{
+  "automationRules": [
+    {
+      "conditions": [
+        {
+          "type": "newMessage",
+          "anyWordsInMessage": [
+            "да"
+          ]
+        }
+      ],
+      "actions": [
+        {
+          // Устанавливаем у заказа в поле "Приоритет" значение "Высокий".
+          "type": "setOrderField",
+          "fieldName": "Приоритет",
+          "valueAsText": "Высокий"
+        }
+      ]
+    }
+  ]
+}

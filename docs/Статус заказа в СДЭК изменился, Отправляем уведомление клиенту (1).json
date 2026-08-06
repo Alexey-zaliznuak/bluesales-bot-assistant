@@ -1,0 +1,72 @@
+// Пример бота, который реагирует на смену статуса заказа в СДЭК
+// и отправляет клиенту соответствующие уведомления.
+// Полный набор статусов содержится в официальной документации СДЭК:
+// https://apidoc.cdek.ru/#tag/common/Prilozheniya/Prilozhenie-1.-Statusy-zakazov-v-vebhukah
+
+{
+  "automationRules": [
+    {
+      "conditions": [
+        {
+          // Реагируем на событие смены статуса заказа в СДЭК.
+          "type": "cdekOrderStatusChanged",
+          // Указываем статусы СДЭК, на которые реагируем.
+          "cdekStatus": {
+            // Статусы, обозначающие, что заказ прибыл в ПВЗ или в постамат,
+            // и клиент может забирать посылку.
+            "equalsAny": [
+              "POSTOMAT_POSTED",
+              "ACCEPTED_AT_PICK_UP_POINT"
+            ]
+          }
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "Заказ прибыл в ПВЗ СДЭК.\n\nНомер отслеживания: [Доставка.Номер отслеживания]"
+        }
+      ]
+    },
+    {
+      "conditions": [
+        {
+          "type": "cdekOrderStatusChanged",
+          "cdekStatus": {
+            // Статусы означают успешное получение заказа клиентом.
+            "equalsAny": [
+              "POSTOMAT_RECEIVED",
+              "DELIVERED"
+            ]
+          }
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "Вы получили заказ: поздравляем Вас с покупкой!"
+        }
+      ]
+    },
+    {
+      "conditions": [
+        {
+          "type": "cdekOrderStatusChanged",
+          "cdekStatus": {
+            // Статусы означают отказ клиента от получения посылки.
+            "equalsAny": [
+              "POSTOMAT_SEIZED",
+              "NOT_DELIVERED"
+            ]
+          }
+        }
+      ],
+      "actions": [
+        {
+          "type": "sendMessage",
+          "message": "Нам очень жаль, что вы отказались от заказа."
+        }
+      ]
+    }
+  ]
+}

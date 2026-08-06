@@ -20,8 +20,6 @@ func testConfig(baseURL string) config.OpenRouter {
 		Model:           "openai/gpt-5.6-luna",
 		ReasoningEffort: "max",
 		Timeout:         10 * time.Second,
-		CacheMode:       "explicit",
-		CacheTTL:        "30m",
 		AppTitle:        "test",
 	}
 }
@@ -47,7 +45,7 @@ func TestStreamChatParsesSSE(t *testing.T) {
 			`data: {"choices":[{"delta":{"content":"При"}}]}`,
 			`data: {"choices":[{"delta":{"content":"вет"}}]}`,
 			`data: {"choices":[],"usage":{"prompt_tokens":1200,"completion_tokens":8,"total_tokens":1208,` +
-				`"prompt_tokens_details":{"cached_tokens":1024},"completion_tokens_details":{"reasoning_tokens":4}}}`,
+				`"completion_tokens_details":{"reasoning_tokens":4}}}`,
 			"data: [DONE]",
 		} {
 			_, _ = io.WriteString(w, line+"\n\n")
@@ -65,14 +63,8 @@ func TestStreamChatParsesSSE(t *testing.T) {
 	var usage *Usage
 
 	err = client.StreamChat(context.Background(), ChatRequest{
-		SessionID:      "chat-1",
-		PromptCacheKey: "bsa-kb-abc",
 		Messages: []Message{
-			{Role: "system", Content: []TextBlock{{
-				Type:                  "text",
-				Text:                  "база знаний",
-				PromptCacheBreakpoint: &PromptCacheBreakpoint{Mode: "explicit"},
-			}}},
+			TextMessage("system", "база знаний"),
 			TextMessage("user", "привет"),
 		},
 	}, StreamCallbacks{
@@ -90,7 +82,7 @@ func TestStreamChatParsesSSE(t *testing.T) {
 	if reasoning.String() != "думаю" {
 		t.Errorf("reasoning = %q", reasoning.String())
 	}
-	if usage == nil || usage.CachedTokens() != 1024 || usage.ReasoningTokens() != 4 {
+	if usage == nil || usage.ReasoningTokens() != 4 {
 		t.Fatalf("usage разобран неверно: %+v", usage)
 	}
 
@@ -101,21 +93,11 @@ func TestStreamChatParsesSSE(t *testing.T) {
 	if effort := captured["reasoning"].(map[string]any)["effort"]; effort != "max" {
 		t.Errorf("reasoning.effort = %v", effort)
 	}
-	if captured["session_id"] != "chat-1" || captured["prompt_cache_key"] != "bsa-kb-abc" {
-		t.Errorf("ключи кэширования потерялись: %v / %v", captured["session_id"], captured["prompt_cache_key"])
-	}
-
-	cacheOptions, ok := captured["prompt_cache_options"].(map[string]any)
-	if !ok || cacheOptions["mode"] != "explicit" || cacheOptions["ttl"] != "30m" {
-		t.Errorf("prompt_cache_options = %v", captured["prompt_cache_options"])
-	}
 	if captured["stream_options"].(map[string]any)["include_usage"] != true {
 		t.Error("include_usage не запрошен, usage не придёт в потоке")
 	}
-
-	systemBlock := captured["messages"].([]any)[0].(map[string]any)["content"].([]any)[0].(map[string]any)
-	if systemBlock["prompt_cache_breakpoint"] == nil {
-		t.Error("маркер кэширования не доехал до блока с базой знаний")
+	if _, ok := captured["prompt_cache_options"]; ok {
+		t.Error("параметры кэширования не должны отправляться")
 	}
 }
 
@@ -173,7 +155,7 @@ func TestNewRejectsUnknownProxyScheme(t *testing.T) {
 	}
 }
 
-func TestCompleteWithoutAPIKey(t *testing.T) {
+func TestStreamChatWithoutAPIKey(t *testing.T) {
 	cfg := testConfig("https://example.com")
 	cfg.APIKey = ""
 
@@ -184,7 +166,7 @@ func TestCompleteWithoutAPIKey(t *testing.T) {
 	if client.Configured() {
 		t.Fatal("клиент без ключа не должен считаться настроенным")
 	}
-	if _, err := client.Complete(context.Background(), ChatRequest{}); err != ErrNoAPIKey {
+	if err := client.StreamChat(context.Background(), ChatRequest{}, StreamCallbacks{}); err != ErrNoAPIKey {
 		t.Fatalf("ожидался ErrNoAPIKey, получено %v", err)
 	}
 }

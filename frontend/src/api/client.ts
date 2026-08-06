@@ -66,7 +66,7 @@ export const api = {
 
   kbStatus: () => request<KBStatus>('/kb/status'),
   kbPreview: () =>
-    request<{ content: string; hash: string; cacheKey: string; documentsCount: number; charsCount: number }>(
+    request<{ content: string; hash: string; documentsCount: number; charsCount: number }>(
       '/kb/preview',
     ),
   kbSync: () => request<KBSyncResult>('/kb/sync', { method: 'POST' }),

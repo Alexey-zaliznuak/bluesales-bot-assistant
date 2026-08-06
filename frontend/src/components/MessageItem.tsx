@@ -26,7 +26,7 @@ export default function MessageItem({
   return (
     <div className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}>
       {!isUser && (
-        <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent-500/20 text-xs font-semibold text-accent-400">
+        <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-xs font-semibold text-accent-600">
           AI
         </div>
       )}
@@ -36,7 +36,9 @@ export default function MessageItem({
 
         <div
           className={`rounded-2xl px-4 py-3 ${
-            isUser ? 'bg-accent-600/25 text-slate-100' : 'border border-surface-700 bg-surface-900'
+            isUser
+              ? 'bg-accent-500 text-white shadow-sm'
+              : 'border border-surface-700 bg-white text-slate-100 shadow-sm'
           }`}
         >
           {content ? (
@@ -50,7 +52,7 @@ export default function MessageItem({
           {attachments.length > 0 && (
             <div className="mt-2 flex flex-wrap gap-1.5 border-t border-white/10 pt-2">
               {attachments.map((file) => (
-                <span key={file.filename} className="badge gap-1.5">
+                <span key={file.filename} className={`badge gap-1.5 ${isUser ? 'border-white/20 bg-white/10 text-white' : ''}`}>
                   <span className="text-slate-400">файл</span>
                   <span className="font-mono">{file.filename}</span>
                   <span className="text-slate-500">{formatSize(file.size)}</span>
@@ -61,7 +63,7 @@ export default function MessageItem({
         </div>
 
         {error && (
-          <div className="rounded-lg border border-red-900/60 bg-red-950/40 px-3 py-2 text-xs text-red-300">
+          <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
             {error}
           </div>
         )}
@@ -69,12 +71,6 @@ export default function MessageItem({
         {usage && (
           <div className="flex flex-wrap gap-x-3 gap-y-1 px-1 text-[11px] text-slate-500">
             <span>промпт: {usage.promptTokens.toLocaleString('ru-RU')}</span>
-            {usage.cachedTokens > 0 && (
-              <span className="text-emerald-400">
-                из кэша: {usage.cachedTokens.toLocaleString('ru-RU')} (
-                {Math.round((usage.cachedTokens / Math.max(usage.promptTokens, 1)) * 100)}%)
-              </span>
-            )}
             <span>ответ: {usage.completionTokens.toLocaleString('ru-RU')}</span>
             {usage.reasoningTokens > 0 && <span>рассуждения: {usage.reasoningTokens.toLocaleString('ru-RU')}</span>}
             {usage.cost != null && <span>${usage.cost.toFixed(5)}</span>}
@@ -89,14 +85,14 @@ function ReasoningBlock({ text, streaming }: { text: string; streaming?: boolean
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="rounded-xl border border-dashed border-surface-600 bg-surface-900/60">
+    <div className="rounded-xl border border-dashed border-surface-600 bg-white">
       <button
         className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-slate-400 hover:text-slate-200"
         onClick={() => setOpen(!open)}
       >
         <span>{open ? '▾' : '▸'}</span>
         <span>Рассуждения модели</span>
-        {streaming && <span className="text-accent-400">идут…</span>}
+        {streaming && <span className="text-accent-600">идут…</span>}
       </button>
       {open && (
         <div className="max-h-64 overflow-y-auto whitespace-pre-wrap break-words border-t border-surface-700 px-3 py-2 text-xs text-slate-400">
