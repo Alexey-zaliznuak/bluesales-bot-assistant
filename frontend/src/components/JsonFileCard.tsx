@@ -4,6 +4,7 @@ import { Button, Icon, Loader } from '@gravity-ui/uikit'
 
 interface Props {
   content: string
+  filename?: string
   streaming?: boolean
 }
 
@@ -14,11 +15,11 @@ export function isLargeJsonResponse(content: string): boolean {
   return isJson && extractJson(content).split(/\r?\n/).length > 50
 }
 
-export default function JsonFileCard({ content, streaming = false }: Props) {
+export default function JsonFileCard({ content, filename: requestedFilename, streaming = false }: Props) {
   const [open, setOpen] = useState(false)
   const json = extractJson(content)
   const valid = isValidJson(json)
-  const filename = 'automation-rules.json'
+  const filename = sanitizeFilename(requestedFilename)
   const size = new TextEncoder().encode(json).length
 
   useEffect(() => {
@@ -183,4 +184,19 @@ function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} Б`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} КБ`
   return `${(bytes / (1024 * 1024)).toFixed(1)} МБ`
+}
+
+function sanitizeFilename(value?: string): string {
+  const fallback = 'automation-rules.json'
+  if (!value) return fallback
+
+  let filename = value
+    .replace(/[<>:"/\\|?*\u0000-\u001f]/g, '-')
+    .replace(/\s+/g, ' ')
+    .replace(/^[.\s]+|[.\s]+$/g, '')
+
+  if (!filename) return fallback
+  if (!/\.json$/i.test(filename)) filename += '.json'
+  if (filename.length > 120) filename = `${filename.slice(0, 115)}.json`
+  return filename
 }

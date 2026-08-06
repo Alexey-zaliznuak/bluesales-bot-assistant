@@ -215,7 +215,8 @@ func (s *Server) handleSendMessage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	messages := make([]openrouter.Message, 0, len(history)+2)
+	messages := make([]openrouter.Message, 0, len(history)+3)
+	messages = append(messages, responseFormattingMessage())
 	if snapshot != nil {
 		messages = append(messages, s.knowledgeBaseMessage(snapshot.Content))
 	}

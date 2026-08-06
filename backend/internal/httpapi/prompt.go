@@ -7,6 +7,15 @@ import (
 	"github.com/alex/bluesales-bot-assistant/backend/internal/store"
 )
 
+const responseFormattingPrompt = "Правила форматирования ответа:\n" +
+	"Любой JSON помещай в отдельный Markdown-блок с именем файла в открывающей строке:\n" +
+	"```json filename=\"Краткое понятное имя.json\"\n...\n```\n" +
+	"Не выводи имя файла отдельной строкой. Для каждого отдельного JSON используй отдельный блок."
+
+func responseFormattingMessage() openrouter.Message {
+	return openrouter.TextMessage("system", responseFormattingPrompt)
+}
+
 func (s *Server) knowledgeBaseMessage(content string) openrouter.Message {
 	return openrouter.TextMessage("system", content)
 }

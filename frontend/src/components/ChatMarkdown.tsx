@@ -11,7 +11,7 @@ interface Props {
 
 type Segment =
   | { type: 'markdown'; content: string }
-  | { type: 'json'; content: string }
+  | { type: 'json'; content: string; filename?: string }
 
 export default function ChatMarkdown({ content, isUser = false, streaming = false }: Props) {
   const markdown = normalizeRawJson(content)
@@ -21,7 +21,12 @@ export default function ChatMarkdown({ content, isUser = false, streaming = fals
     <div className={`chat-markdown ${isUser ? 'chat-markdown-user' : ''}`}>
       {segments.map((segment, index) =>
         segment.type === 'json' ? (
-          <JsonFileCard key={index} content={segment.content} streaming={streaming} />
+          <JsonFileCard
+            key={index}
+            content={segment.content}
+            filename={segment.filename}
+            streaming={streaming}
+          />
         ) : (
           <ReactMarkdown key={index} remarkPlugins={[remarkGfm]}>
             {segment.content}
@@ -51,7 +56,11 @@ function splitLargeJsonBlocks(markdown: string): Segment[] {
     if (position > cursor) {
       segments.push({ type: 'markdown', content: markdown.slice(cursor, position) })
     }
-    segments.push({ type: 'json', content: json })
+    segments.push({
+      type: 'json',
+      content: json,
+      filename: parseFilename(match[0].slice(0, match[0].indexOf('\n'))),
+    })
     cursor = position + match[0].length
   }
 
@@ -64,4 +73,9 @@ function splitLargeJsonBlocks(markdown: string): Segment[] {
 
 function countLines(value: string): number {
   return value === '' ? 0 : value.split(/\r?\n/).length
+}
+
+function parseFilename(openingFence: string): string | undefined {
+  const match = openingFence.match(/\bfilename\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s]+))/i)
+  return match?.[1] ?? match?.[2] ?? match?.[3]
 }
