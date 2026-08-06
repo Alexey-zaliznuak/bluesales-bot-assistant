@@ -3,8 +3,10 @@ import react from '@vitejs/plugin-react'
 
 const apiTarget = process.env.VITE_API_PROXY_TARGET ?? 'http://localhost:8080'
 const port = Number(process.env.FRONTEND_PORT ?? 5173)
+const base = normalizeBase(process.env.VITE_BASE_PATH ?? '/')
 
 export default defineConfig({
+  base,
   plugins: [react()],
   server: {
     host: true,
@@ -29,3 +31,8 @@ export default defineConfig({
     },
   },
 })
+
+function normalizeBase(value: string): string {
+  const path = `/${value.replace(/^\/+|\/+$/g, '')}/`
+  return path === '//' ? '/' : path
+}

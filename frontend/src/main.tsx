@@ -10,6 +10,8 @@ import App from './App'
 import { AuthProvider } from './hooks/useAuth'
 import './index.css'
 
+const routerBase = import.meta.env.BASE_URL.replace(/\/$/, '') || '/'
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -24,7 +26,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider theme="light">
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
+        <BrowserRouter basename={routerBase}>
           <AuthProvider>
             <App />
           </AuthProvider>

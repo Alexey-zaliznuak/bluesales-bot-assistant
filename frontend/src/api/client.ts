@@ -9,6 +9,8 @@ import type {
   User,
 } from './types'
 
+const apiBase = `${import.meta.env.BASE_URL}api`
+
 export class ApiError extends Error {
   status: number
 
@@ -20,7 +22,7 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(`/api${path}`, {
+  const response = await fetch(`${apiBase}${path}`, {
     credentials: 'include',
     ...init,
     headers: {
@@ -103,7 +105,7 @@ export async function sendMessage(
   form.set('content', content)
   files.forEach((file) => form.append('files', file))
 
-  const response = await fetch(`/api/chats/${chatId}/messages`, {
+  const response = await fetch(`${apiBase}/chats/${chatId}/messages`, {
     method: 'POST',
     credentials: 'include',
     body: form,
