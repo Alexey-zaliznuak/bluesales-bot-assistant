@@ -76,7 +76,9 @@ export default function MessageItem({
             <span>промпт: {usage.promptTokens.toLocaleString('ru-RU')}</span>
             <span>ответ: {usage.completionTokens.toLocaleString('ru-RU')}</span>
             {usage.reasoningTokens > 0 && <span>рассуждения: {usage.reasoningTokens.toLocaleString('ru-RU')}</span>}
+            {/* TODO: вернуть отображение цены запроса
             {usage.cost != null && <span>${usage.cost.toFixed(5)}</span>}
+            */}
           </div>
         )}
       </div>
