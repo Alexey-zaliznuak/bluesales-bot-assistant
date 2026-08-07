@@ -6,6 +6,9 @@ import type { Attachment, Usage } from '../api/types'
 import ChatMarkdown from './ChatMarkdown'
 import JsonFileCard, { isLargeJsonResponse } from './JsonFileCard'
 
+// TODO: вернуть рассуждения модели и статистику токенов.
+const SHOW_INTERNAL_UI = false
+
 interface Props {
   role: 'user' | 'assistant' | 'system'
   content: string
@@ -37,7 +40,7 @@ export default function MessageItem({
       )}
 
       <div className={`min-w-0 max-w-[min(46rem,85%)] space-y-2`}>
-        {reasoning && <ReasoningBlock text={reasoning} streaming={streaming} />}
+        {SHOW_INTERNAL_UI && reasoning && <ReasoningBlock text={reasoning} streaming={streaming} />}
 
         <div
           className={`rounded-2xl px-4 py-3 ${
@@ -71,7 +74,7 @@ export default function MessageItem({
           </div>
         )}
 
-        {usage && (
+        {SHOW_INTERNAL_UI && usage && (
           <div className="flex flex-wrap gap-x-3 gap-y-1 px-1 text-[11px] text-slate-500">
             <span>промпт: {usage.promptTokens.toLocaleString('ru-RU')}</span>
             <span>ответ: {usage.completionTokens.toLocaleString('ru-RU')}</span>

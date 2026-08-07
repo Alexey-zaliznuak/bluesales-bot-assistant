@@ -6,6 +6,9 @@ import { ArrowRightFromSquare, Comments, Database } from '@gravity-ui/icons'
 import { api } from '../api/client'
 import { useAuth } from '../hooks/useAuth'
 
+// TODO: вернуть доступ к базе знаний и технические индикаторы.
+const SHOW_INTERNAL_UI = false
+
 export default function Layout() {
   const { user, logout } = useAuth()
   const { data: status } = useQuery({ queryKey: ['kb-status'], queryFn: api.kbStatus })
@@ -25,16 +28,16 @@ export default function Layout() {
 
         <nav className="flex items-center gap-1">
           <NavItem to="/chats" label="Чаты" icon={Comments} />
-          <NavItem to="/documents" label="База знаний" icon={Database} />
+          {SHOW_INTERNAL_UI && <NavItem to="/documents" label="База знаний" icon={Database} />}
         </nav>
 
         <div className="ml-auto flex items-center gap-3 text-xs text-slate-400">
-          {status && (
+          {SHOW_INTERNAL_UI && status && (
             <Label theme="normal" size="s">
               {status.model} · {status.reasoningEffort}
             </Label>
           )}
-          {status && !status.openrouterKeySet && (
+          {SHOW_INTERNAL_UI && status && !status.openrouterKeySet && (
             <Label theme="warning" size="s">нет API-ключа</Label>
           )}
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 text-xs font-semibold text-accent-600">

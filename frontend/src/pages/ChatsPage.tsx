@@ -9,6 +9,9 @@ import type { Attachment, Usage } from '../api/types'
 import Composer from '../components/Composer'
 import MessageItem from '../components/MessageItem'
 
+// TODO: вернуть технические сведения о базе знаний и модели.
+const SHOW_INTERNAL_UI = false
+
 interface PendingUser {
   content: string
   attachments: Attachment[]
@@ -199,17 +202,19 @@ export default function ChatsPage() {
                 <Icon data={Comments} size={17} />
               </div>
               <h1 className="truncate text-sm font-semibold text-slate-100">{chat?.title ?? '…'}</h1>
-              <div className="ml-auto flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                {chat?.knowledgeBase ? (
-                  <Label theme="success" size="s" title={`Снимок от ${new Date(chat.knowledgeBase.createdAt).toLocaleString('ru-RU')}`}>
-                    контекст: {chat.knowledgeBase.documentsCount} докум. ·{' '}
-                    {chat.knowledgeBase.charsCount.toLocaleString('ru-RU')} симв.
-                  </Label>
-                ) : (
-                  <Label theme="warning" size="s">база знаний не подключена</Label>
-                )}
-                <Label theme="normal" size="s">{chat?.model}</Label>
-              </div>
+              {SHOW_INTERNAL_UI && (
+                <div className="ml-auto flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                  {chat?.knowledgeBase ? (
+                    <Label theme="success" size="s" title={`Снимок от ${new Date(chat.knowledgeBase.createdAt).toLocaleString('ru-RU')}`}>
+                      контекст: {chat.knowledgeBase.documentsCount} докум. ·{' '}
+                      {chat.knowledgeBase.charsCount.toLocaleString('ru-RU')} симв.
+                    </Label>
+                  ) : (
+                    <Label theme="warning" size="s">база знаний не подключена</Label>
+                  )}
+                  <Label theme="normal" size="s">{chat?.model}</Label>
+                </div>
+              )}
             </div>
 
             <div ref={scrollRef} className="min-h-0 flex-1 space-y-5 overflow-y-auto bg-surface-950/60 px-6 py-6">
@@ -258,7 +263,7 @@ export default function ChatsPage() {
               onStop={() => abortRef.current?.abort()}
             />
 
-            {!kbStatus?.openrouterKeySet && (
+            {SHOW_INTERNAL_UI && !kbStatus?.openrouterKeySet && (
               <div className="border-t border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-700">
                 Не задан OPENROUTER_API_KEY — отправка сообщений отключена.
               </div>
@@ -286,10 +291,9 @@ function EmptyState({
       </div>
       <h2 className="text-xl font-semibold text-slate-100">Чат с ассистентом BlueSales</h2>
       <p className="max-w-md text-sm text-slate-500">
-        Новый чат берёт текущий снимок базы знаний как контекст. Пересборка базы позже не меняет
-        контекст уже начатых чатов.
+        Начните новый диалог с ассистентом.
       </p>
-      {!hasKB && (
+      {SHOW_INTERNAL_UI && !hasKB && (
         <p className="max-w-md rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700">
           База знаний ещё не синхронизирована — чат будет работать без контекста документов.
         </p>
