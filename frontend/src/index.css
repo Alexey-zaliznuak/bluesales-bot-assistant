@@ -10,16 +10,6 @@
     height: 100%;
   }
 
-  /* Gravity UI action по умолчанию жёлтый; бренд проекта — синий. */
-  .g-root {
-    --g-color-base-brand: #2563eb;
-    --g-color-base-brand-hover: #1d4ed8;
-    --g-color-text-brand: #2563eb;
-    --g-color-text-brand-heavy: #1d4ed8;
-    --g-color-text-brand-contrast: #ffffff;
-    --g-color-line-brand: #2563eb;
-  }
-
   body {
     @apply bg-surface-950 text-slate-200 antialiased;
     margin: 0;
