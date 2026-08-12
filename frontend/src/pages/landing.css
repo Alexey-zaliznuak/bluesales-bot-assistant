@@ -30,7 +30,12 @@
 }
 
 .landing-page .g-button_view_action {
-  @apply bg-accent-500 text-white shadow-sm hover:bg-accent-600;
+  --_--text-color: #fff;
+  --_--background-color: var(--landing-blue);
+  --_--background-color-hover: var(--landing-blue-strong);
+  --_--focus-outline-color: var(--landing-blue);
+
+  @apply shadow-sm;
 }
 
 .landing-container {
