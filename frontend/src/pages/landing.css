@@ -30,7 +30,10 @@
 }
 
 .landing-page .g-button_view_action {
-  @apply bg-accent-500 text-white shadow-sm hover:bg-accent-600;
+  --g-color-base-brand: #2563eb;
+  --g-color-base-brand-hover: #1d4ed8;
+  --g-color-text-brand-contrast: #ffffff;
+  color: #fff;
 }
 
 .landing-container {
