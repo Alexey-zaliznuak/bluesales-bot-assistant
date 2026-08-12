@@ -204,18 +204,26 @@ export default function LandingPage() {
         <section id="security">
           <div className="landing-container landing-security">
             <div className="landing-security-copy">
-              <div className="landing-kicker">Техническая основа</div>
-              <h2>Сделано как рабочий сервис, а не демо.</h2>
+              <div className="landing-kicker">Надёжность</div>
+              <h2>Работайте спокойно — данные и контекст под контролем.</h2>
               <p>
-                Авторизация, база данных, снимки знаний, потоковые ответы и серверная часть уже
-                собраны в полноценный SPA-сервис.
+                У каждого пользователя своё пространство для работы, а начатые диалоги сохраняют
+                привычный контекст даже после обновления базы знаний.
               </p>
             </div>
             <div className="landing-security-grid">
-              <SecurityItem title="Пароли">Хранятся как bcrypt-хэши.</SecurityItem>
-              <SecurityItem title="Сессии">Токен хранится в httpOnly cookie.</SecurityItem>
-              <SecurityItem title="База знаний">Снимки фиксируются по SHA-256.</SecurityItem>
-              <SecurityItem title="Поток ответов">SSE разделяет текст и статистику.</SecurityItem>
+              <SecurityItem title="Приватные чаты">
+                Другие пользователи не видят вашу переписку.
+              </SecurityItem>
+              <SecurityItem title="Безопасный вход">
+                Данные для входа защищены и не хранятся открыто в браузере.
+              </SecurityItem>
+              <SecurityItem title="Стабильный контекст">
+                Начатый диалог продолжает работать с той же версией базы знаний.
+              </SecurityItem>
+              <SecurityItem title="Ответы в реальном времени">
+                Результат появляется постепенно, без ожидания полного ответа.
+              </SecurityItem>
             </div>
           </div>
         </section>
