@@ -100,11 +100,15 @@
   padding: 90px 0 58px;
 }
 
+.landing-hero .landing-container {
+  width: min(1380px, calc(100% - 40px));
+}
+
 .landing-hero-grid {
   display: grid;
-  grid-template-columns: 0.92fr 1.08fr;
+  grid-template-columns: 0.72fr 1.28fr;
   align-items: center;
-  gap: 52px;
+  gap: 40px;
 }
 
 .landing-eyebrow {
@@ -668,6 +672,10 @@
 @media (max-width: 640px) {
   .landing-container {
     width: min(calc(100% - 24px), 1180px);
+  }
+
+  .landing-hero .landing-container {
+    width: min(calc(100% - 24px), 1380px);
   }
 
   .landing-nav {
