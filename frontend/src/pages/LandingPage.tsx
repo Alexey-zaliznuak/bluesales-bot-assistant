@@ -11,7 +11,7 @@ import {
 } from '@gravity-ui/icons'
 import { useNavigate } from 'react-router-dom'
 
-import productUi from '../../../bluesales-landing/assets/product-ui.png'
+import productUi from '../assets/product-ui.png'
 import { useAuth } from '../hooks/useAuth'
 import './landing.css'
 
