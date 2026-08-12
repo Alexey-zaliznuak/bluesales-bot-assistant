@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/alex/bluesales-bot-assistant/backend/internal/auth"
 	"github.com/alex/bluesales-bot-assistant/backend/internal/store"
@@ -40,4 +41,20 @@ func (s *Server) requireAuth(next http.Handler) http.Handler {
 func userFrom(ctx context.Context) *store.User {
 	user, _ := ctx.Value(userCtxKey).(*store.User)
 	return user
+}
+
+func (s *Server) isAdmin(user *store.User) bool {
+	return user != nil &&
+		strings.TrimSpace(s.cfg.SeedUserLogin) != "" &&
+		strings.EqualFold(strings.TrimSpace(user.Login), strings.TrimSpace(s.cfg.SeedUserLogin))
+}
+
+func (s *Server) requireAdmin(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !s.isAdmin(userFrom(r.Context())) {
+			writeError(w, http.StatusForbidden, "доступ разрешён только администратору")
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }

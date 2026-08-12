@@ -10,6 +10,9 @@
     "typecheck": "tsc -b --noEmit"
   },
   "dependencies": {
+    "@gravity-ui/charts": "^1.57.3",
+    "@gravity-ui/date-components": "^4.0.0",
+    "@gravity-ui/date-utils": "^2.7.1",
     "@gravity-ui/icons": "^2.21.0",
     "@gravity-ui/uikit": "^7.47.2",
     "@tanstack/react-query": "^5.62.7",

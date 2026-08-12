@@ -1,7 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Icon, Label, type IconData } from '@gravity-ui/uikit'
-import { ArrowRightFromSquare, Comments, Database } from '@gravity-ui/icons'
+import { ArrowRightFromSquare, ChartColumn, Comments, Database } from '@gravity-ui/icons'
 
 import { api } from '../api/client'
 import { useAuth } from '../hooks/useAuth'
@@ -28,6 +28,7 @@ export default function Layout() {
 
         <nav className="flex items-center gap-1">
           <NavItem to="/chats" label="Чаты" icon={Comments} />
+          {user?.isAdmin && <NavItem to="/admin" label="Админка" icon={ChartColumn} />}
           {SHOW_INTERNAL_UI && <NavItem to="/documents" label="База знаний" icon={Database} />}
         </nav>
 

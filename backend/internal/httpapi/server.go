@@ -67,6 +67,11 @@ func (s *Server) Router() http.Handler {
 			r.Patch("/chats/{id}", s.handleRenameChat)
 			r.Delete("/chats/{id}", s.handleDeleteChat)
 			r.Post("/chats/{id}/messages", s.handleSendMessage)
+
+			r.Group(func(r chi.Router) {
+				r.Use(s.requireAdmin)
+				r.Get("/admin/dashboard", s.handleAdminDashboard)
+			})
 		})
 	})
 

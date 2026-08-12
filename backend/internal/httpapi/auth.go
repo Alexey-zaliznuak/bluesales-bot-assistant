@@ -23,8 +23,9 @@ type loginRequest struct {
 }
 
 type userResponse struct {
-	ID    string `json:"id"`
-	Login string `json:"login"`
+	ID      string `json:"id"`
+	Login   string `json:"login"`
+	IsAdmin bool   `json:"isAdmin"`
 }
 
 func validateRegistration(login, password string) error {
@@ -73,7 +74,7 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 	if !s.createSession(w, r, user) {
 		return
 	}
-	writeJSON(w, http.StatusCreated, userResponse{ID: user.ID, Login: user.Login})
+	writeJSON(w, http.StatusCreated, s.toUserResponse(user))
 }
 
 func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
@@ -107,7 +108,7 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 	if !s.createSession(w, r, user) {
 		return
 	}
-	writeJSON(w, http.StatusOK, userResponse{ID: user.ID, Login: user.Login})
+	writeJSON(w, http.StatusOK, s.toUserResponse(user))
 }
 
 func (s *Server) createSession(w http.ResponseWriter, r *http.Request, user *store.User) bool {
@@ -149,7 +150,11 @@ func (s *Server) handleLogout(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleMe(w http.ResponseWriter, r *http.Request) {
 	user := userFrom(r.Context())
-	writeJSON(w, http.StatusOK, userResponse{ID: user.ID, Login: user.Login})
+	writeJSON(w, http.StatusOK, s.toUserResponse(user))
+}
+
+func (s *Server) toUserResponse(user *store.User) userResponse {
+	return userResponse{ID: user.ID, Login: user.Login, IsAdmin: s.isAdmin(user)}
 }
 
 func (s *Server) clearSessionCookie(w http.ResponseWriter) {

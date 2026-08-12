@@ -1,4 +1,5 @@
 import type {
+  AdminDashboard,
   Chat,
   ChatDetail,
   Document,
@@ -53,6 +54,10 @@ export const api = {
     request<User>('/auth/register', { method: 'POST', body: JSON.stringify({ login, password }) }),
   logout: () => request<{ status: string }>('/auth/logout', { method: 'POST' }),
   me: () => request<User>('/auth/me'),
+  adminDashboard: (from: string, to: string) => {
+    const query = new URLSearchParams({ from, to })
+    return request<AdminDashboard>(`/admin/dashboard?${query}`)
+  },
 
   listDocuments: (params: { search?: string; category?: string } = {}) => {
     const query = new URLSearchParams()

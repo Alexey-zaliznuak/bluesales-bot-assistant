@@ -1,6 +1,29 @@
 export interface User {
   id: string
   login: string
+  isAdmin: boolean
+}
+
+export interface DailyTokenUsage {
+  date: string
+  totalTokens: number
+}
+
+export interface AdminUserUsage {
+  id: string
+  login: string
+  createdAt: string
+  monthTokens: number
+  allTimeTokens: number
+}
+
+export interface AdminDashboard {
+  from: string
+  to: string
+  timezone: string
+  totalTokens: number
+  daily: DailyTokenUsage[]
+  users: AdminUserUsage[]
 }
 
 export interface Document {
