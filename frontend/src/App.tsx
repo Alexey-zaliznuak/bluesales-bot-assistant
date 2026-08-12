@@ -6,6 +6,7 @@ import { useAuth } from './hooks/useAuth'
 import ChatsPage from './pages/ChatsPage'
 import DocumentsPage from './pages/DocumentsPage'
 import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
 
 // TODO: вернуть маршрут базы знаний вместе с пунктом навигации в Layout.
 const SHOW_KNOWLEDGE_BASE = false
@@ -25,6 +26,7 @@ export default function App() {
     return (
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     )

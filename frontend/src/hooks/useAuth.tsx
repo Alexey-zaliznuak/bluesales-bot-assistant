@@ -8,6 +8,7 @@ interface AuthContextValue {
   user: User | null
   loading: boolean
   login: (login: string, password: string) => Promise<void>
+  register: (login: string, password: string) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -37,6 +38,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [queryClient],
   )
 
+  const register = useCallback(
+    async (loginValue: string, password: string) => {
+      const user = await api.register(loginValue, password)
+      queryClient.setQueryData(['me'], user)
+    },
+    [queryClient],
+  )
+
   const logout = useCallback(async () => {
     await api.logout()
     queryClient.setQueryData(['me'], null)
@@ -44,8 +53,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [queryClient])
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user: data ?? null, loading: isLoading, login, logout }),
-    [data, isLoading, login, logout],
+    () => ({ user: data ?? null, loading: isLoading, login, register, logout }),
+    [data, isLoading, login, register, logout],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

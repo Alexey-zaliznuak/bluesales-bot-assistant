@@ -4,21 +4,42 @@ import { Link } from 'react-router-dom'
 
 import { useAuth } from '../hooks/useAuth'
 
-export default function LoginPage() {
-  const { login } = useAuth()
+export default function RegisterPage() {
+  const { register } = useAuth()
   const [loginValue, setLoginValue] = useState('')
   const [password, setPassword] = useState('')
+  const [passwordConfirmation, setPasswordConfirmation] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
     setError(null)
+
+    const normalizedLogin = loginValue.trim()
+    const loginLength = Array.from(normalizedLogin).length
+    if (loginLength < 3 || loginLength > 64) {
+      setError('Логин должен содержать от 3 до 64 символов')
+      return
+    }
+    if (Array.from(password).length < 8) {
+      setError('Пароль должен содержать не менее 8 символов')
+      return
+    }
+    if (new TextEncoder().encode(password).length > 72) {
+      setError('Пароль не должен превышать 72 байта')
+      return
+    }
+    if (password !== passwordConfirmation) {
+      setError('Пароли не совпадают')
+      return
+    }
+
     setSubmitting(true)
     try {
-      await login(loginValue, password)
+      await register(normalizedLogin, password)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Не удалось войти')
+      setError(err instanceof Error ? err.message : 'Не удалось зарегистрироваться')
     } finally {
       setSubmitting(false)
     }
@@ -33,8 +54,10 @@ export default function LoginPage() {
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-500 font-bold text-white shadow-sm">
             BS
           </div>
-          <h1 className="pt-4 text-2xl font-semibold tracking-tight text-slate-100">Добро пожаловать</h1>
-          <p className="text-sm text-slate-500">Корпоративный AI-ассистент BlueSales</p>
+          <h1 className="pt-4 text-2xl font-semibold tracking-tight text-slate-100">
+            Создание аккаунта
+          </h1>
+          <p className="text-sm text-slate-500">Зарегистрируйтесь для работы с AI-ассистентом</p>
         </div>
 
         <div className="space-y-4">
@@ -51,7 +74,14 @@ export default function LoginPage() {
             size="xl"
             value={password}
             onUpdate={setPassword}
-            autoComplete="current-password"
+            autoComplete="new-password"
+          />
+          <PasswordInput
+            label="Повторите пароль"
+            size="xl"
+            value={passwordConfirmation}
+            onUpdate={setPasswordConfirmation}
+            autoComplete="new-password"
           />
         </div>
 
@@ -59,12 +89,12 @@ export default function LoginPage() {
 
         <div className="space-y-3">
           <Button view="action" size="xl" width="max" type="submit" loading={submitting}>
-            {submitting ? 'Входим…' : 'Войти'}
+            {submitting ? 'Создаём аккаунт…' : 'Зарегистрироваться'}
           </Button>
           <p className="text-center text-sm text-slate-500">
-            Нет аккаунта?{' '}
-            <Link className="font-medium text-accent-600 hover:text-accent-700" to="/register">
-              Зарегистрироваться
+            Уже есть аккаунт?{' '}
+            <Link className="font-medium text-accent-600 hover:text-accent-700" to="/login">
+              Войти
             </Link>
           </p>
         </div>

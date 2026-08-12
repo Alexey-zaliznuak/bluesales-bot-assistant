@@ -40,6 +40,25 @@ func (s *Store) GetUserByID(ctx context.Context, id string) (*User, error) {
 	return &u, nil
 }
 
+// CreateUser создаёт нового пользователя, не изменяя существующую учётную запись.
+func (s *Store) CreateUser(ctx context.Context, login, passwordHash string) (*User, error) {
+	var u User
+	err := s.pool.QueryRow(ctx, `
+		INSERT INTO users (login, password_hash)
+		VALUES ($1, $2)
+		ON CONFLICT (lower(login)) DO NOTHING
+		RETURNING id, login, password_hash, created_at`,
+		strings.TrimSpace(login), passwordHash,
+	).Scan(&u.ID, &u.Login, &u.PasswordHash, &u.CreatedAt)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrConflict
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &u, nil
+}
+
 // UpsertUser создаёт пользователя или обновляет пароль существующего.
 // Используется сид-скриптом, чтобы повторный запуск был идемпотентным.
 func (s *Store) UpsertUser(ctx context.Context, login, passwordHash string) (*User, bool, error) {

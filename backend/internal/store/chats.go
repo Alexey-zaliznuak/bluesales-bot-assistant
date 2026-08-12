@@ -71,9 +71,17 @@ func (s *Store) RenameChat(ctx context.Context, userID, chatID, title string) er
 	return nil
 }
 
-func (s *Store) TouchChat(ctx context.Context, chatID string) error {
-	_, err := s.pool.Exec(ctx, `UPDATE chats SET updated_at = now() WHERE id = $1`, chatID)
-	return err
+func (s *Store) TouchChat(ctx context.Context, userID, chatID string) error {
+	tag, err := s.pool.Exec(ctx,
+		`UPDATE chats SET updated_at = now() WHERE id = $1 AND user_id = $2`,
+		chatID, userID)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return ErrNotFound
+	}
+	return nil
 }
 
 func (s *Store) DeleteChat(ctx context.Context, userID, chatID string) error {
@@ -87,11 +95,13 @@ func (s *Store) DeleteChat(ctx context.Context, userID, chatID string) error {
 	return nil
 }
 
-func (s *Store) ListMessages(ctx context.Context, chatID string) ([]Message, error) {
+func (s *Store) ListMessages(ctx context.Context, userID, chatID string) ([]Message, error) {
 	rows, err := s.pool.Query(ctx, `
-		SELECT id, chat_id, role, content, attachments, usage, error, created_at
-		FROM messages WHERE chat_id = $1
-		ORDER BY seq`, chatID)
+		SELECT m.id, m.chat_id, m.role, m.content, m.attachments, m.usage, m.error, m.created_at
+		FROM messages m
+		JOIN chats c ON c.id = m.chat_id
+		WHERE m.chat_id = $1 AND c.user_id = $2
+		ORDER BY m.seq`, chatID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +135,7 @@ func (s *Store) ListMessages(ctx context.Context, chatID string) ([]Message, err
 	return messages, rows.Err()
 }
 
-func (s *Store) CreateMessage(ctx context.Context, chatID, role, content string, attachments []Attachment, usage *Usage, msgErr *string) (*Message, error) {
+func (s *Store) CreateMessage(ctx context.Context, userID, chatID, role, content string, attachments []Attachment, usage *Usage, msgErr *string) (*Message, error) {
 	if attachments == nil {
 		attachments = []Attachment{}
 	}
@@ -144,10 +154,15 @@ func (s *Store) CreateMessage(ctx context.Context, chatID, role, content string,
 	var attachmentsOut, usageOut []byte
 	err = s.pool.QueryRow(ctx, `
 		INSERT INTO messages (chat_id, role, content, attachments, usage, error)
-		VALUES ($1, $2, $3, $4, $5, $6)
+		SELECT c.id, $3, $4, $5, $6, $7
+		FROM chats c
+		WHERE c.id = $1 AND c.user_id = $2
 		RETURNING id, chat_id, role, content, attachments, usage, error, created_at`,
-		chatID, role, content, attachmentsJSON, usageJSON, msgErr,
+		chatID, userID, role, content, attachmentsJSON, usageJSON, msgErr,
 	).Scan(&m.ID, &m.ChatID, &m.Role, &m.Content, &attachmentsOut, &usageOut, &m.Error, &m.CreatedAt)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, ErrNotFound
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +172,17 @@ func (s *Store) CreateMessage(ctx context.Context, chatID, role, content string,
 	return &m, nil
 }
 
-func (s *Store) DeleteMessage(ctx context.Context, id string) error {
-	_, err := s.pool.Exec(ctx, `DELETE FROM messages WHERE id = $1`, id)
-	return err
+func (s *Store) DeleteMessage(ctx context.Context, userID, id string) error {
+	tag, err := s.pool.Exec(ctx, `
+		DELETE FROM messages m
+		USING chats c
+		WHERE m.id = $1 AND m.chat_id = c.id AND c.user_id = $2`,
+		id, userID)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return ErrNotFound
+	}
+	return nil
 }

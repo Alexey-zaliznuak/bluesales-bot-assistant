@@ -98,7 +98,7 @@ func (s *Server) handleGetChat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	messages, err := s.store.ListMessages(r.Context(), chat.ID)
+	messages, err := s.store.ListMessages(r.Context(), user.ID, chat.ID)
 	if err != nil {
 		writeStoreError(w, err)
 		return
@@ -187,7 +187,7 @@ func (s *Server) handleSendMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	history, err := s.store.ListMessages(r.Context(), chat.ID)
+	history, err := s.store.ListMessages(r.Context(), user.ID, chat.ID)
 	if err != nil {
 		writeStoreError(w, err)
 		return
@@ -199,7 +199,7 @@ func (s *Server) handleSendMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userMessage, err := s.store.CreateMessage(r.Context(), chat.ID, "user", text, attachments, nil, nil)
+	userMessage, err := s.store.CreateMessage(r.Context(), user.ID, chat.ID, "user", text, attachments, nil, nil)
 	if err != nil {
 		writeStoreError(w, err)
 		return
@@ -279,13 +279,13 @@ func (s *Server) streamAnswer(w http.ResponseWriter, r *http.Request, chat *stor
 		return
 	}
 
-	assistantMessage, err := s.store.CreateMessage(saveCtx, chat.ID, "assistant", content.String(), nil, toStoreUsage(usage), errText)
+	assistantMessage, err := s.store.CreateMessage(saveCtx, chat.UserID, chat.ID, "assistant", content.String(), nil, toStoreUsage(usage), errText)
 	if err != nil {
 		slog.Error("сохранение ответа", "error", err)
 		_ = sse.send("error", map[string]string{"error": "ответ получен, но не сохранён"})
 		return
 	}
-	if err := s.store.TouchChat(saveCtx, chat.ID); err != nil {
+	if err := s.store.TouchChat(saveCtx, chat.UserID, chat.ID); err != nil {
 		slog.Error("обновление чата", "error", err)
 	}
 

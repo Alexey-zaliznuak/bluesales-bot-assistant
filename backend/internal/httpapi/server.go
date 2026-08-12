@@ -40,6 +40,7 @@ func (s *Server) Router() http.Handler {
 	r.Route("/api", func(r chi.Router) {
 		r.Get("/health", s.handleHealth)
 		r.Post("/auth/login", s.handleLogin)
+		r.Post("/auth/register", s.handleRegister)
 
 		r.Group(func(r chi.Router) {
 			r.Use(s.requireAuth)

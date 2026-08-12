@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/alex/bluesales-bot-assistant/backend/internal/auth"
 	"github.com/alex/bluesales-bot-assistant/backend/internal/store"
@@ -24,6 +25,55 @@ type loginRequest struct {
 type userResponse struct {
 	ID    string `json:"id"`
 	Login string `json:"login"`
+}
+
+func validateRegistration(login, password string) error {
+	loginLength := utf8.RuneCountInString(login)
+	if loginLength < 3 || loginLength > 64 {
+		return errors.New("логин должен содержать от 3 до 64 символов")
+	}
+	if utf8.RuneCountInString(password) < 8 {
+		return errors.New("пароль должен содержать не менее 8 символов")
+	}
+	if len([]byte(password)) > 72 {
+		return errors.New("пароль не должен превышать 72 байта")
+	}
+	return nil
+}
+
+func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
+	var req loginRequest
+	if !decodeJSON(w, r, &req) {
+		return
+	}
+
+	req.Login = strings.TrimSpace(req.Login)
+	if err := validateRegistration(req.Login, req.Password); err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	passwordHash, err := auth.HashPassword(req.Password)
+	if err != nil {
+		slog.Error("хеширование пароля", "error", err)
+		writeError(w, http.StatusInternalServerError, "не удалось создать пользователя")
+		return
+	}
+
+	user, err := s.store.CreateUser(r.Context(), req.Login, passwordHash)
+	if err != nil {
+		if errors.Is(err, store.ErrConflict) {
+			writeError(w, http.StatusConflict, "этот логин уже занят")
+			return
+		}
+		writeStoreError(w, err)
+		return
+	}
+
+	if !s.createSession(w, r, user) {
+		return
+	}
+	writeJSON(w, http.StatusCreated, userResponse{ID: user.ID, Login: user.Login})
 }
 
 func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
@@ -54,17 +104,24 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !s.createSession(w, r, user) {
+		return
+	}
+	writeJSON(w, http.StatusOK, userResponse{ID: user.ID, Login: user.Login})
+}
+
+func (s *Server) createSession(w http.ResponseWriter, r *http.Request, user *store.User) bool {
 	token, tokenHash, err := auth.NewSessionToken()
 	if err != nil {
 		slog.Error("генерация токена сессии", "error", err)
 		writeError(w, http.StatusInternalServerError, "не удалось создать сессию")
-		return
+		return false
 	}
 
 	expiresAt := time.Now().Add(s.cfg.SessionTTL)
 	if err := s.store.CreateSession(r.Context(), user.ID, tokenHash, expiresAt); err != nil {
 		writeStoreError(w, err)
-		return
+		return false
 	}
 
 	http.SetCookie(w, &http.Cookie{
@@ -77,8 +134,7 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 		Secure:   s.cfg.SessionCookieSecure,
 		SameSite: http.SameSiteLaxMode,
 	})
-
-	writeJSON(w, http.StatusOK, userResponse{ID: user.ID, Login: user.Login})
+	return true
 }
 
 func (s *Server) handleLogout(w http.ResponseWriter, r *http.Request) {
