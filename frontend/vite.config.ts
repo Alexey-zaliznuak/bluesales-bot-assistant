@@ -5,6 +5,7 @@ const apiTarget = process.env.VITE_API_PROXY_TARGET ?? 'http://localhost:8080'
 const port = Number(process.env.FRONTEND_PORT ?? 5173)
 const base = normalizeBase(process.env.VITE_BASE_PATH ?? '/')
 const apiPath = `${base}api`
+const hmrEnabled = process.env.VITE_HMR_ENABLED !== 'false'
 
 export default defineConfig({
   base,
@@ -13,6 +14,7 @@ export default defineConfig({
     host: true,
     allowedHosts: ['aheron.pro'],
     port,
+    hmr: hmrEnabled,
     proxy: {
       [apiPath]: {
         target: apiTarget,

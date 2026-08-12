@@ -61,13 +61,16 @@ export default function AdminPage() {
 
   const chartData = useMemo(
     () => ({
+      xAxis: {
+        type: 'datetime' as const,
+      },
       series: {
         data: [
           {
             type: 'bar-x' as const,
             name: 'Токены',
             data: (data?.daily ?? []).map((item) => ({
-              x: item.date,
+              x: new Date(`${item.date}T00:00:00+03:00`).getTime(),
               y: item.totalTokens,
             })),
           },
